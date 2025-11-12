@@ -95,15 +95,7 @@ def generate_launch_description():
         executable="static_transform_publisher",
         name="static_transform_publisher_world_to_robot",
         output="log",
-        arguments=[
-            "0.0",
-            "-0.64",
-            "0.0",
-            "0.0",
-            "0.0",
-            "0.0",
-            "world",
-            "panda_link0"],
+        arguments=["0.0", "-0.64", "0.0", "0.0", "0.0", "0.0", "world", "panda_link0"],
         parameters=[{"use_sim_time": LaunchConfiguration("use_sim_time")}],
     )
     # hand2camera_tf_node = Node(

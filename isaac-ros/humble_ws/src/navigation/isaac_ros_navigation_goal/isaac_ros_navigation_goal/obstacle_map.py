@@ -30,7 +30,7 @@ class GridMap:
     def __get_meta_from_yaml(self, yaml_file_path):
         """
         Reads map meta from the yaml file.
-        
+
         Parameters
         ----------
         yaml_file_path: path of the yaml file.
@@ -39,7 +39,9 @@ class GridMap:
         with open(yaml_file_path, "r") as f:
             file_content = f.read()
         self.__map_meta = yaml.safe_load(file_content)
-        self.__map_meta["image"] = os.path.join(os.path.dirname(yaml_file_path), self.__map_meta["image"])
+        self.__map_meta["image"] = os.path.join(
+            os.path.dirname(yaml_file_path), self.__map_meta["image"]
+        )
 
     def __get_raw_map(self):
         """
@@ -54,7 +56,9 @@ class GridMap:
         if self.__map_meta["negate"]:
             res = np.where((img / 255)[:, :, 0] > self.__map_meta["free_thresh"])
         else:
-            res = np.where(((255 - img) / 255)[:, :, 0] > self.__map_meta["free_thresh"])
+            res = np.where(
+                ((255 - img) / 255)[:, :, 0] > self.__map_meta["free_thresh"]
+            )
 
         self.__grid_map = np.zeros(shape=(img.shape[:2]), dtype=bool)
 
@@ -66,8 +70,14 @@ class GridMap:
         Calculates and adds the max value of pose in x & y direction to the meta.
         """
 
-        max_x = self.__grid_map.shape[1] * self.__map_meta["resolution"] + self.__map_meta["origin"][0]
-        max_y = self.__grid_map.shape[0] * self.__map_meta["resolution"] + self.__map_meta["origin"][1]
+        max_x = (
+            self.__grid_map.shape[1] * self.__map_meta["resolution"]
+            + self.__map_meta["origin"][0]
+        )
+        max_y = (
+            self.__grid_map.shape[0] * self.__map_meta["resolution"]
+            + self.__map_meta["origin"][1]
+        )
         self.__map_meta["max_x"] = round(max_x, 2)
         self.__map_meta["max_y"] = round(max_y, 2)
 
@@ -77,7 +87,7 @@ class GridMap:
     def get_range(self):
         """
         Returns the bounds of pose values in x & y direction.\n
-        
+
         Returns
         -------
         [List]:\n
@@ -107,8 +117,12 @@ class GridMap:
         """
 
         p_x, p_y = point
-        i_x = math.floor((p_x - self.__map_meta["origin"][0]) / self.__map_meta["resolution"])
-        i_y = math.floor((p_y - self.__map_meta["origin"][1]) / self.__map_meta["resolution"])
+        i_x = math.floor(
+            (p_x - self.__map_meta["origin"][0]) / self.__map_meta["resolution"]
+        )
+        i_y = math.floor(
+            (p_y - self.__map_meta["origin"][1]) / self.__map_meta["resolution"]
+        )
 
         # because origin in yaml is at bottom left of image
         i_y = self.__grid_map.shape[0] - i_y
@@ -148,7 +162,10 @@ class GridMap:
 
         # image point acts as the center of the square, where each side of square is of size
         # 2xdistance
-        patch = self.__grid_map[row_start_idx : img_point[1] + distance, col_start_idx : img_point[0] + distance]
+        patch = self.__grid_map[
+            row_start_idx : img_point[1] + distance,
+            col_start_idx : img_point[0] + distance,
+        ]
         obstacles = np.where(patch == True)
         return len(obstacles[0]) > 0
 

@@ -20,17 +20,19 @@ from launch import LaunchDescription
 from launch_ros.actions import Node
 from launch_ros.actions import PushRosNamespace
 
+
 def generate_launch_description() -> LaunchDescription:
     args = lu.ArgumentContainer()
-    args.add_arg('calibrated_urdf_file', default='/etc/nova/calibration/isaac_calibration.urdf')
-    return LaunchDescription([
-
-        # Add robot description
-        lu.add_robot_description(
-            nominals_package='nova_carter_description',
-            nominals_file='urdf/nova_carter.urdf.xacro',
-            robot_calibration_path=args.calibrated_urdf_file,
-        ),
-        
-
-    ])
+    args.add_arg(
+        "calibrated_urdf_file", default="/etc/nova/calibration/isaac_calibration.urdf"
+    )
+    return LaunchDescription(
+        [
+            # Add robot description
+            lu.add_robot_description(
+                nominals_package="nova_carter_description",
+                nominals_file="urdf/nova_carter.urdf.xacro",
+                robot_calibration_path=args.calibrated_urdf_file,
+            ),
+        ]
+    )

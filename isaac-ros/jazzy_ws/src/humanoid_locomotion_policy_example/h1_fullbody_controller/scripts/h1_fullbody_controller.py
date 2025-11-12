@@ -28,7 +28,7 @@ from message_filters import Subscriber, TimeSynchronizer
 
 class H1FullbodyController(Node):
     """Fullbody controller for H1 humanoid robot.
-    
+
     This ROS 2 node subscribes to velocity commands and synchronized joint/IMU
     data, processes the data through a neural network policy, and publishes
     joint commands for controlling the H1 robot's movements.
@@ -36,21 +36,17 @@ class H1FullbodyController(Node):
 
     def __init__(self):
         """Initialize the H1 fullbody controller node."""
-        super().__init__('h1_fullbody_controller')
+        super().__init__("h1_fullbody_controller")
 
         # Declare and set parameters
-        self.declare_parameter('publish_period_ms', 5)
-        self.declare_parameter('policy_path', 'policy/h1_policy.pt')
+        self.declare_parameter("publish_period_ms", 5)
+        self.declare_parameter("policy_path", "policy/h1_policy.pt")
         self.set_parameters(
-            [rclpy.parameter.Parameter(
-                'use_sim_time', 
-                rclpy.Parameter.Type.BOOL, 
-                True
-            )]
+            [rclpy.parameter.Parameter("use_sim_time", rclpy.Parameter.Type.BOOL, True)]
         )
 
         self._logger = self.get_logger()
-        
+
         # Configure QoS profile for simulation
         sim_qos_profile = rclpy.qos.QoSProfile(
             reliability=rclpy.qos.ReliabilityPolicy.RELIABLE,
@@ -60,28 +56,25 @@ class H1FullbodyController(Node):
 
         # Create subscription for velocity commands
         self._cmd_vel_subscription = self.create_subscription(
-            Twist,
-            '/cmd_vel',
-            self._cmd_vel_callback,
-            qos_profile=10)
+            Twist, "/cmd_vel", self._cmd_vel_callback, qos_profile=10
+        )
 
         # Create publisher for joint commands
         self._joint_publisher = self.create_publisher(
-            JointState,
-            '/joint_command',
-            qos_profile=sim_qos_profile)
+            JointState, "/joint_command", qos_profile=sim_qos_profile
+        )
 
         # Setup synchronized subscribers for IMU and joint state data
         self._imu_sub_filter = Subscriber(
             self,
             Imu,
-            '/imu',
+            "/imu",
             qos_profile=sim_qos_profile,
         )
         self._joint_states_sub_filter = Subscriber(
             self,
             JointState,
-            '/joint_states',
+            "/joint_states",
             qos_profile=sim_qos_profile,
         )
         queue_size = 10
@@ -93,7 +86,7 @@ class H1FullbodyController(Node):
         self.sync.registerCallback(self._tick)
 
         # Load neural network policy
-        self.policy_path = self.get_parameter('policy_path').value
+        self.policy_path = self.get_parameter("policy_path").value
         self.load_policy()
 
         # Initialize state variables
@@ -108,37 +101,53 @@ class H1FullbodyController(Node):
         self._last_tick_time = self.get_clock().now().nanoseconds * 1e-9
         self._lin_vel_b = np.zeros(3)  # Linear velocity in body frame
         self._dt = 0.0  # Time delta between ticks
-        
+
         # Default joint positions representing the nominal stance
-        self.default_pos = np.array([
-            0.0, 0.0, 0.0, 0.0, 0.0,
-            0.28, 0.28, -0.28, -0.28,
-            0.0, 0.0, 0.79, 0.79,
-            0.0, 0.0, -0.52, -0.52,
-            0.52, 0.52
-        ])
+        self.default_pos = np.array(
+            [
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.0,
+                0.28,
+                0.28,
+                -0.28,
+                -0.28,
+                0.0,
+                0.0,
+                0.79,
+                0.79,
+                0.0,
+                0.0,
+                -0.52,
+                -0.52,
+                0.52,
+                0.52,
+            ]
+        )
 
         # Joint names in the order expected by the policy
         self.joint_names = [
-            'left_hip_yaw',
-            'right_hip_yaw',
-            'torso',
-            'left_hip_roll',
-            'right_hip_roll',
-            'left_shoulder_pitch',
-            'right_shoulder_pitch',
-            'left_hip_pitch',
-            'right_hip_pitch',
-            'left_shoulder_roll',
-            'right_shoulder_roll',
-            'left_knee',
-            'right_knee',
-            'left_shoulder_yaw',
-            'right_shoulder_yaw',
-            'left_ankle',
-            'right_ankle',
-            'left_elbow',
-            'right_elbow'
+            "left_hip_yaw",
+            "right_hip_yaw",
+            "torso",
+            "left_hip_roll",
+            "right_hip_roll",
+            "left_shoulder_pitch",
+            "right_shoulder_pitch",
+            "left_hip_pitch",
+            "right_hip_pitch",
+            "left_shoulder_roll",
+            "right_shoulder_roll",
+            "left_knee",
+            "right_knee",
+            "left_shoulder_yaw",
+            "right_shoulder_yaw",
+            "left_ankle",
+            "right_ankle",
+            "left_elbow",
+            "right_elbow",
         ]
 
         self._logger.info("Initializing H1FullbodyController")
@@ -149,11 +158,11 @@ class H1FullbodyController(Node):
 
     def _tick(self, joint_state: JointState, imu: Imu):
         """Process synchronized joint state and IMU data to generate robot commands.
-        
+
         This method is called whenever new joint state and IMU data are available.
         It computes the policy's action and publishes the resulting joint
         commands.
-        
+
         Args:
             joint_state: Current joint positions and velocities
             imu: Current IMU data (orientation, angular velocity, acceleration)
@@ -162,11 +171,11 @@ class H1FullbodyController(Node):
         now = self.get_clock().now().nanoseconds * 1e-9
         if now < self._last_tick_time:
             self._logger.error(
-                f'{self._get_stamp_prefix()} Time jumped backwards. Resetting.'
+                f"{self._get_stamp_prefix()} Time jumped backwards. Resetting."
             )
-        
+
         # Calculate time delta since last tick
-        self._dt = (now - self._last_tick_time)
+        self._dt = now - self._last_tick_time
         self._last_tick_time = now
 
         # Run the control policy
@@ -175,7 +184,7 @@ class H1FullbodyController(Node):
         # Prepare and publish the joint command message
         self._joint_command.header.stamp = self.get_clock().now().to_msg()
         self._joint_command.name = self.joint_names
-        
+
         # Compute final joint positions by adding scaled actions to default positions
         action_pos = self.default_pos + self.action * self._action_scale
         self._joint_command.position = action_pos.tolist()
@@ -185,7 +194,7 @@ class H1FullbodyController(Node):
 
     def _compute_observation(self, joint_state: JointState, imu: Imu):
         """Compute the policy observation vector from robot state.
-        
+
         Constructs a 69-dimensional observation vector from robot sensor data:
         - Linear velocity (body frame)
         - Angular velocity (body frame)
@@ -194,11 +203,11 @@ class H1FullbodyController(Node):
         - Joint positions (relative to default)
         - Joint velocities
         - Previous action
-        
+
         Args:
             joint_state: Current joint positions and velocities
             imu: Current IMU data
-            
+
         Returns:
             np.ndarray: 69-dimensional observation vector for the policy
         """
@@ -211,28 +220,28 @@ class H1FullbodyController(Node):
         R_BI = self.quat_to_rot_matrix(quat_array).T
 
         # Extract linear acceleration and integrate to estimate velocity
-        lin_acc_b = np.array([
-            imu.linear_acceleration.x,
-            imu.linear_acceleration.y,
-            imu.linear_acceleration.z
-        ])
-        
+        lin_acc_b = np.array(
+            [
+                imu.linear_acceleration.x,
+                imu.linear_acceleration.y,
+                imu.linear_acceleration.z,
+            ]
+        )
+
         # Simple integration to estimate velocity
         self._lin_vel_b = lin_acc_b * self._dt + self._lin_vel_b
-        
+
         # Extract angular velocity
-        ang_vel_b = np.array([
-            imu.angular_velocity.x,
-            imu.angular_velocity.y,
-            imu.angular_velocity.z
-        ])
-        
+        ang_vel_b = np.array(
+            [imu.angular_velocity.x, imu.angular_velocity.y, imu.angular_velocity.z]
+        )
+
         # Calculate gravity direction in body frame
         gravity_b = np.matmul(R_BI, np.array([0.0, 0.0, -1.0]))
 
         # Initialize observation vector
         obs = np.zeros(69)
-        
+
         # Fill observation vector components:
         # Base linear velocity (3)
         obs[:3] = self._lin_vel_b
@@ -242,15 +251,15 @@ class H1FullbodyController(Node):
 
         # Gravity direction (3)
         obs[6:9] = gravity_b
-        
+
         # Velocity commands (3)
         cmd_vel = [
             self._cmd_vel.linear.x,
             self._cmd_vel.linear.y,
-            self._cmd_vel.angular.z
+            self._cmd_vel.angular.z,
         ]
         obs[9:12] = np.array(cmd_vel)
-        
+
         # Joint states (19 positions + 19 velocities)
         current_joint_pos = np.zeros(19)
         current_joint_vel = np.zeros(19)
@@ -264,10 +273,10 @@ class H1FullbodyController(Node):
 
         # Store joint positions relative to default pose
         obs[12:31] = current_joint_pos - self.default_pos
-        
+
         # Store joint velocities
         obs[31:50] = current_joint_vel
-        
+
         # Store previous actions
         obs[50:69] = self._previous_action
 
@@ -275,10 +284,10 @@ class H1FullbodyController(Node):
 
     def _compute_action(self, obs):
         """Run the neural network policy to compute an action from the observation.
-        
+
         Args:
             obs: Observation vector containing robot state information
-            
+
         Returns:
             np.ndarray: Action vector containing joint position adjustments
         """
@@ -290,10 +299,10 @@ class H1FullbodyController(Node):
 
     def forward(self, joint_state: JointState, imu: Imu):
         """Process sensor data and compute control actions.
-        
+
         This combines observation computation and policy evaluation.
         The policy is run at a reduced rate (decimation) to save computation.
-        
+
         Args:
             joint_state: Current joint positions and velocities
             imu: Current IMU data
@@ -334,27 +343,27 @@ class H1FullbodyController(Node):
     def load_policy(self):
         """Load the neural network policy from the specified path."""
         # Load policy from file to io.BytesIO object
-        with open(self.policy_path, 'rb') as f:
+        with open(self.policy_path, "rb") as f:
             buffer = io.BytesIO(f.read())
         # Load TorchScript model from buffer
         self.policy = torch.jit.load(buffer)
 
     def _get_stamp_prefix(self) -> str:
         """Create a timestamp prefix for logging with both system and ROS time.
-        
+
         Returns:
             str: Formatted timestamp string with system and ROS time
         """
         now = time.time()
         now_ros = self.get_clock().now().nanoseconds / 1e9
-        return f'[{now}][{now_ros}]'
+        return f"[{now}][{now_ros}]"
 
     def header_time_in_seconds(self, header) -> float:
         """Convert a ROS message header timestamp to seconds.
-        
+
         Args:
             header: ROS message header containing timestamp
-            
+
         Returns:
             float: Time in seconds
         """
@@ -370,5 +379,5 @@ def main(args=None):
     rclpy.shutdown()
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()

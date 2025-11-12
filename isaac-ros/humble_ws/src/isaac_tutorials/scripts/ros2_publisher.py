@@ -48,7 +48,9 @@ class TestROS2Bridge(Node):
         num_joints = len(self.joint_state.name)
 
         # make sure kit's editor is playing for receiving messages
-        self.joint_state.position = np.array([0.0] * num_joints, dtype=np.float64).tolist()
+        self.joint_state.position = np.array(
+            [0.0] * num_joints, dtype=np.float64
+        ).tolist()
         self.default_joints = [0.0, -1.16, -0.0, -2.3, -0.0, 1.6, 1.1, 0.4, 0.4]
 
         # limiting the movements to a smaller range (this is not the range of the robot, just the range of the movement
@@ -65,7 +67,10 @@ class TestROS2Bridge(Node):
         self.joint_state.header.stamp = self.get_clock().now().to_msg()
 
         joint_position = (
-            np.sin(time.time() - self.time_start) * (self.max_joints - self.min_joints) * 0.5 + self.default_joints
+            np.sin(time.time() - self.time_start)
+            * (self.max_joints - self.min_joints)
+            * 0.5
+            + self.default_joints
         )
         self.joint_state.position = joint_position.tolist()
 
