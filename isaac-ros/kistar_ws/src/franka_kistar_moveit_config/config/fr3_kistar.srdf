@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<robot name="fr3_kistar">
+
+  <!-- 1) world ↔ 로봇 루트 링크 virtual joint -->
+  <virtual_joint
+    name="world_to_base"
+    type="fixed"
+    parent_frame="world"
+    child_link="base" />
+
+  <!-- 2) 메인 플래닝 그룹: 팔 + 손바닥까지 -->
+  <group name="fr3_manipulator">
+    <chain base_link="fr3_link0" tip_link="fr3_link8"/>
+  </group>
+
+  <!-- 3) EE 정의 (옵션이지만 나중에 RViz에서 편함) -->
+  <end_effector
+    name="kistar_ee"
+    parent_link="palm"
+    group="fr3_manipulator"
+    parent_group="fr3_manipulator" />
+
+  <!-- 4) 나중에 필요하면 disable_collisions, passive_joint 추가 가능 -->
+</robot>
+
+
+

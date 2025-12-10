@@ -66,8 +66,16 @@ source /opt/ros/humble/setup.bash
 source ~/fr_ws/install/setup.bash
 
 # 3) Isaac 예제 + 네 코드 (overlay)
-source ~/isaac-ros/humble_ws/install/setup.bash
+source ~/isaac_ws/dex_soldering/dex_ros/isaac-ros/humble_ws/install/setup.bash
+source ~/isaac_ws/dex_soldering/dex_ros/isaac-ros/kistar_ws/install/setup.bash
 
-source ~/isaac-ros/kistar_ws/install/setup.bash
+# Build overlay
+source install/setup.bash
+```
+
+## Example
+```shell
+ros2 run joint_state_publisher_gui joint_state_publisher_gui /tmp/fr3_kistar.urdf
+
 
 ```
