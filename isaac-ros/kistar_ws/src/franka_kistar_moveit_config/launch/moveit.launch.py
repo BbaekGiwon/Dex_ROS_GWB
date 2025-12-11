@@ -216,65 +216,73 @@ def generate_launch_description():
         parameters=[robot_description],
     )
 
-    ros2_controllers_path = os.path.join(
-        get_package_share_directory("franka_fr3_moveit_config"),
-        "config",
-        "fr3_ros_controllers.yaml",
-    )
-    ros2_control_node = Node(
-        package="controller_manager",
-        executable="ros2_control_node",
+    isaac_bridge_node = Node(
+        package="franka_kistar_isaac_moveit",
+        executable="isaac_moveit_bridge",  # 우리가 만들 python 노드 이름
         namespace=namespace,
-        parameters=[robot_description, ros2_controllers_path],
-        remappings=[("joint_states", "franka/joint_states")],
-        output={
-            "stdout": "screen",
-            "stderr": "screen",
-        },
-        on_exit=Shutdown(),
+        name="fr3_arm_controller",         # 중요: 노드 이름을 fr3_arm_controller로 해서
+        output="screen",
     )
+
+    # ros2_controllers_path = os.path.join(
+    #     get_package_share_directory("franka_fr3_moveit_config"),
+    #     "config",
+    #     "fr3_ros_controllers.yaml",
+    # )
+    # ros2_control_node = Node(
+    #     package="controller_manager",
+    #     executable="ros2_control_node",
+    #     namespace=namespace,
+    #     parameters=[robot_description, ros2_controllers_path],
+    #     remappings=[("joint_states", "franka/joint_states")],
+    #     output={
+    #         "stdout": "screen",
+    #         "stderr": "screen",
+    #     },
+    #     on_exit=Shutdown(),
+    # )
 
     # Load controllers
-    load_controllers = []
-    for controller in ["fr3_arm_controller", "joint_state_broadcaster"]:
-        load_controllers.append(
-            ExecuteProcess(
-                cmd=[
-                    "ros2",
-                    "run",
-                    "controller_manager",
-                    "spawner",
-                    controller,
-                    "--controller-manager-timeout",
-                    "60",
-                    "--controller-manager",
-                    PathJoinSubstitution([namespace, "controller_manager"]),
-                ],
-                output="screen",
-            )
-        )
+    # load_controllers = []
+    # for controller in ["fr3_arm_controller", "joint_state_broadcaster"]:
+    #     load_controllers.append(
+    #         ExecuteProcess(
+    #             cmd=[
+    #                 "ros2",
+    #                 "run",
+    #                 "controller_manager",
+    #                 "spawner",
+    #                 controller,
+    #                 "--controller-manager-timeout",
+    #                 "60",
+    #                 "--controller-manager",
+    #                 PathJoinSubstitution([namespace, "controller_manager"]),
+    #             ],
+    #             output="screen",
+    #         )
+    #     )
 
-    joint_state_publisher = Node(
-        package="joint_state_publisher",
-        executable="joint_state_publisher",
-        name="joint_state_publisher",
-        namespace=namespace,
-        parameters=[
-            {
-                "source_list": ["franka/joint_states", "fr3_gripper/joint_states"],
-                "rate": 30,
-            }
-        ],
-    )
+    # joint_state_publisher = Node(
+    #     package="joint_state_publisher",
+    #     executable="joint_state_publisher",
+    #     name="joint_state_publisher",
+    #     namespace=namespace,
+    #     parameters=[
+    #         {
+    #             "source_list": ["franka/joint_states", "fr3_gripper/joint_states"],
+    #             "rate": 30,
+    #         }
+    #     ],
+    # )
 
-    franka_robot_state_broadcaster = Node(
-        package="controller_manager",
-        executable="spawner",
-        namespace=namespace,
-        arguments=["franka_robot_state_broadcaster"],
-        output="screen",
-        condition=UnlessCondition(use_fake_hardware),
-    )
+    # franka_robot_state_broadcaster = Node(
+    #     package="controller_manager",
+    #     executable="spawner",
+    #     namespace=namespace,
+    #     arguments=["franka_robot_state_broadcaster"],
+    #     output="screen",
+    #     condition=UnlessCondition(use_fake_hardware),
+    # )
 
     robot_arg = DeclareLaunchArgument(
         robot_ip_parameter_name, description="Hostname or IP address of the robot."
@@ -333,10 +341,11 @@ def generate_launch_description():
             rviz_node,
             robot_state_publisher,
             run_move_group_node,
-            ros2_control_node,
-            joint_state_publisher,
-            franka_robot_state_broadcaster,
+            # ros2_control_node,
+            # joint_state_publisher,
+            # franka_robot_state_broadcaster,
             gripper_launch_file,
+            isaac_bridge_node, 
         ]
-        + load_controllers
+        # + load_controllers
     )

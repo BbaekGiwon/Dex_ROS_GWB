@@ -27,6 +27,13 @@ install(
   PROGRAMS
     scripts/test_send_joint.py
   DESTINATION lib/${PROJECT_NAME}
+  RENAME test_send_joint
 )
 
+install(
+  PROGRAMS
+    scripts/isaac_moveit_bridge.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME isaac_moveit_bridge
+)
 ament_package()

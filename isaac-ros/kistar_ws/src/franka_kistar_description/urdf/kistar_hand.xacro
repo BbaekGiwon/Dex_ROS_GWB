@@ -771,22 +771,22 @@
 
   <link name="lab_table">
     <visual>
-      <origin xyz="0.5 0.0 -0.36" rpy="0 0 0"/>
+      <origin xyz="-0.25 -1.1 -0.15" rpy="-0.785 0 0"/>
       <geometry>
-        <!-- size: x(길이) y(폭) z(높이) -->
-        <box size="1.0 0.6 0.72"/>
+        <mesh filename="package://franka_kistar_description/meshes/table/soldering_table.obj" scale="1. 1. 1."/>
       </geometry>
-      <material name="lab_table_color">
-        <color rgba="0.6 0.4 0.3 1.0"/>
-      </material>
-    </visual>
+    </visual> 
 
     <collision>
       <!-- 충돌 모델도 동일 박스 -->
-      <origin xyz="0.5 0.0 -0.36" rpy="0 0 0"/>
+      <!-- <origin xyz="0.5 0.0 -0.36" rpy="-0.785 0 0"/>
       <geometry>
         <box size="1.0 0.6 0.72"/>
-      </geometry>
+      </geometry> -->
+        <origin xyz="-0.25 -1.1 -0.15" rpy="-0.785 0 0"/>
+        <geometry>
+          <mesh filename="package://franka_kistar_description/meshes/table/soldering_table.obj" scale="1. 1. 1."/>
+        </geometry>
     </collision>
   </link>
 
