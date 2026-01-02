@@ -13,6 +13,7 @@
 # **/*.usda
 # **/*.usdc
 # **/*.usdz
+**/*.mtl
 
 # Python
 .DS_Store
@@ -81,3 +82,7 @@ tests/
 humble_ws/build
 humble_ws/install
 humble_ws/log
+
+# ROS Build
+**/install/*
+**/log/*
