@@ -32,3 +32,11 @@ sudo apt install -y apptainer
 ./docker/cluster/cluster_interface.sh push [profile]
 ```
 
+### Test .. 
+```shell
+cd dex_ros
+./build_ros.sh -d humble -v 22.04
+
+source build_ws/humble/humble_ws/install/local_setup.bash
+source build_ws/humble/isaac_sim_ros_ws/install/local_setup.bash
+```
