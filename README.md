@@ -18,7 +18,7 @@
 I will irregularly update the development progress in [Link](https://cold-young.github.io/projects/kist-soldering/). (only devleopment status! not detail information)
 
 - [ ] Initial Setting
-  - [ ] Our own docker/singluarity image
+  - [x] Our own docker/singluarity image
 
 - [ ] ROS2 Interface 
   - [ ] Planning (Moveit) - w/ ros topic

@@ -77,5 +77,22 @@ source install/setup.bash
 ```shell
 ros2 run joint_state_publisher_gui joint_state_publisher_gui /tmp/fr3_kistar.urdf
 
+```
+
+## MoveIt! Example 
+![Demonstration](../fig/moveit.gif)
+```shell
+rs 
+
+ros2 launch moveit_setup_assistant setup_assistant.launch.py
+
+# 터미널 1 – 실로봇 bringup (공식)
+ros2 launch franka_bringup franka.launch.py \
+  robot_ip:=172.16.0.3 \
+  use_fake_hardware:=false
+
+# 터미널 2 – MoveIt + RViz (kistar URDF)
+ros2 launch franka_kistar_moveit_config moveit.launch.py
 
 ```
+
