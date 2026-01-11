@@ -23,7 +23,7 @@ I will irregularly update the development progress in [Link](https://cold-young.
 - [ ] ROS2 Interface 
   - [ ] Planning (Moveit) - w/ ros topic
   - [ ] Perception 
-  - [ ] RViz in ROS2 + IsaacSim 5.0
+  - [x] RViz in ROS2 + IsaacSim 5.0
 
 - [ ] Connect with Real Environment 
 

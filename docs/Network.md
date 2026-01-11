@@ -17,7 +17,7 @@
 
 - Check Network Connection 
     ```shell
-    ping -c 4 10.10.0.7 # from primecomputer to robot computer
+    ping -c 4 10.10.0.7 
     ```
 
 ## Subscribe other ROS Topic
@@ -37,7 +37,6 @@
         cd "$HOME/isaacsim/isaacsim-5.1.0" || return
         conda activate dexsdr
         export isaac_sim_package_path=$HOME/isaacsim/isaacsim-5.1.0
-        # 1) 기존 ROS 흔적 싹 지우기
         unset ROS_VERSION ROS_PYTHON_VERSION
         unset ROS_PACKAGE_PATH
         clean_var() {
@@ -50,7 +49,6 @@
         clean_var PYTHONPATH
         clean_var LD_LIBRARY_PATH
         clean_var PATH
-        # 2) IsaacSim ROS bridge용 최소 세팅만 다시 넣기
         export ROS_DISTRO=humble
         export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
         export ROS_DOMAIN_ID=9
@@ -87,12 +85,3 @@
     }
   ```
 
-## Quick Test
-- Turn on and connect PRIME / Robot computer! 
-- Publish robot ROS2 topic of Robot computer
-- Test on PRIME computer
-```shell
-    rs  # or rsi
-    ros2 topic list
-    ros2 topic pub --once /franka/arm_target/right kistar_hand_ros2/msg/FrankaArmTarget "{joint_targets: [0.5, -0.6, 0.7, -2.4, -0.02, 1.2, 1.], arm_id: 0}"
-```ㄱ
