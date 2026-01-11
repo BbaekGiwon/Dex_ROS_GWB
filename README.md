@@ -18,12 +18,12 @@
 I will irregularly update the development progress in [Link](https://cold-young.github.io/projects/kist-soldering/). (only devleopment status! not detail information)
 
 - [ ] Initial Setting
-  - [ ] Our own docker/singluarity image
+  - [x] Our own docker/singluarity image
 
 - [ ] ROS2 Interface 
   - [ ] Planning (Moveit) - w/ ros topic
   - [ ] Perception 
-  - [ ] RViz in ROS2 + IsaacSim 5.0
+  - [x] RViz in ROS2 + IsaacSim 5.0
 
 - [ ] Connect with Real Environment 
 

@@ -13,6 +13,7 @@
 # **/*.usda
 # **/*.usdc
 # **/*.usdz
+**/*.mtl
 
 # Python
 .DS_Store
@@ -75,3 +76,18 @@ tests/
 
 # Docker history
 .isaac-lab-docker-history
+
+**/build_ws/*
+**/build_ws_a/*
+humble_ws/build
+humble_ws/install
+humble_ws/log
+
+# ROS Build
+**/install/*
+**/log/*
+
+**/*.zip
+
+**/.history
+**/.vscode
