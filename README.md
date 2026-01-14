@@ -31,6 +31,13 @@ I will irregularly update the development progress in [Link](https://cold-young.
 ## IsaacSim Installation (Local)
 Install `IsaacSim-5.1.0` [[Link]](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/download.html)
 
+
+## Build 
+```shell
+cd ~/isaac_ws/dex_soldering/dex_ros/isaac-ros/kistar_ws
+rm -rf build/kistar_hand_ros2 install/kistar_hand_ros2
+colcon build --symlink-install --packages-select kistar_hand_ros2
+
 ~~~~
 
 ```

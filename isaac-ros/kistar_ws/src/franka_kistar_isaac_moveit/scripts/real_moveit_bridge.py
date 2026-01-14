@@ -24,6 +24,7 @@ class RealMoveItBridge(Node):
         self.declare_parameter(
             "traj_action_name", "/fr3_arm_controller/follow_joint_trajectory"
         )
+        self.declare_parameter("command_rate_hz", 200.0)
         self.declare_parameter(
             "joint_names",
             [
@@ -86,6 +87,10 @@ class RealMoveItBridge(Node):
                 "fr3_joint7",
             ]
 
+        self.command_rate_hz = max(
+            self.get_parameter("command_rate_hz").get_parameter_value().double_value,
+            1.0,
+        )
         self.min_dt = max(
             self.get_parameter("min_dt").get_parameter_value().double_value, 0.001
         )
@@ -163,13 +168,10 @@ class RealMoveItBridge(Node):
                 order_idx = None
 
         self.get_logger().info(f"[Action] Executing trajectory ({n_points} points)")
+        times = []
+        positions_list = []
         last_t = 0.0
-        for i, pt in enumerate(traj.points):
-            if goal_handle.is_cancel_requested:
-                self.get_logger().info("[Action] Goal canceled")
-                goal_handle.canceled()
-                return FollowJointTrajectory.Result()
-
+        for pt in traj.points:
             positions = list(pt.positions)
             if order_idx is not None:
                 positions = [positions[idx] for idx in order_idx]
@@ -183,16 +185,65 @@ class RealMoveItBridge(Node):
                 goal_handle.abort()
                 return result
 
+            t = pt.time_from_start.sec + pt.time_from_start.nanosec * 1e-9
+            if t <= last_t:
+                t = last_t + self.min_dt
+            times.append(t)
+            positions_list.append(positions)
+            last_t = t
+
+        if len(times) == 1:
             cmd = FrankaArmTarget()
-            cmd.joint_targets = positions
+            cmd.joint_targets = positions_list[0]
             cmd.arm_id = self.arm_id
             self.cmd_pub.publish(cmd)
-            self.get_logger().info(f"[Action] Sent point {i + 1}/{n_points}")
+        else:
+            duration = times[-1]
+            dt = 1.0 / self.command_rate_hz
+            start_time = time.monotonic()
+            next_tick = start_time
+            idx = 0
 
-            t = pt.time_from_start.sec + pt.time_from_start.nanosec * 1e-9
-            dt = max(t - last_t, self.min_dt)
-            time.sleep(dt)
-            last_t = t
+            while True:
+                if goal_handle.is_cancel_requested:
+                    self.get_logger().info("[Action] Goal canceled")
+                    goal_handle.canceled()
+                    return FollowJointTrajectory.Result()
+
+                now = time.monotonic()
+                t = now - start_time
+                if t >= duration:
+                    break
+
+                while idx < len(times) - 2 and t > times[idx + 1]:
+                    idx += 1
+
+                t0 = times[idx]
+                t1 = times[idx + 1]
+                p0 = positions_list[idx]
+                p1 = positions_list[idx + 1]
+                if t1 <= t0:
+                    alpha = 0.0
+                else:
+                    alpha = max(0.0, min((t - t0) / (t1 - t0), 1.0))
+
+                interp = [
+                    p0[j] + alpha * (p1[j] - p0[j]) for j in range(len(self.joint_names))
+                ]
+
+                cmd = FrankaArmTarget()
+                cmd.joint_targets = interp
+                cmd.arm_id = self.arm_id
+                self.cmd_pub.publish(cmd)
+
+                next_tick += dt
+                sleep_time = max(0.0, next_tick - time.monotonic())
+                time.sleep(sleep_time)
+
+            cmd = FrankaArmTarget()
+            cmd.joint_targets = positions_list[-1]
+            cmd.arm_id = self.arm_id
+            self.cmd_pub.publish(cmd)
 
         self.get_logger().info("[Action] Trajectory done")
         result = FollowJointTrajectory.Result()

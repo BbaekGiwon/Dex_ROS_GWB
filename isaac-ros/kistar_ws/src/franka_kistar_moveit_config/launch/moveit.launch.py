@@ -63,6 +63,7 @@ def generate_launch_description():
     ee_id_parameter_name = "ee_id"
     bridge_parameter_name = "bridge"
     arm_side_parameter_name = "arm_side"
+    command_rate_hz_parameter_name = "command_rate_hz"
 
     robot_ip = LaunchConfiguration(robot_ip_parameter_name)
     use_fake_hardware = LaunchConfiguration(use_fake_hardware_parameter_name)
@@ -72,6 +73,7 @@ def generate_launch_description():
     ee_id = LaunchConfiguration(ee_id_parameter_name)
     bridge = LaunchConfiguration(bridge_parameter_name)
     arm_side = LaunchConfiguration(arm_side_parameter_name)
+    command_rate_hz = LaunchConfiguration(command_rate_hz_parameter_name)
 
     # Command-line arguments
 
@@ -238,7 +240,7 @@ def generate_launch_description():
         namespace=namespace,
         name="fr3_arm_controller",
         output="screen",
-        parameters=[{"arm_side": arm_side}],
+        parameters=[{"arm_side": arm_side, "command_rate_hz": command_rate_hz}],
         condition=IfCondition(
             PythonExpression(["'", bridge, "' == 'real'"])
         ),
@@ -323,6 +325,11 @@ def generate_launch_description():
         default_value="right",
         description="Arm side for real bridge (left or right).",
     )
+    command_rate_hz_arg = DeclareLaunchArgument(
+        command_rate_hz_parameter_name,
+        default_value="200.0",
+        description="Command streaming rate for real bridge (Hz).",
+    )
     load_gripper_arg = DeclareLaunchArgument(
         load_gripper_parameter_name,
         default_value="true",
@@ -365,6 +372,7 @@ def generate_launch_description():
             namespace_arg,
             bridge_arg,
             arm_side_arg,
+            command_rate_hz_arg,
             load_gripper_arg,
             ee_id_arg,
             use_fake_hardware_arg,
