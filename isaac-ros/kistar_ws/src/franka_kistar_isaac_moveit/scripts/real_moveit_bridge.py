@@ -3,6 +3,7 @@ import time
 
 import rclpy
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
+from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
 
 from control_msgs.action import FollowJointTrajectory
@@ -94,6 +95,7 @@ class RealMoveItBridge(Node):
         self.min_dt = max(
             self.get_parameter("min_dt").get_parameter_value().double_value, 0.001
         )
+        self.system_clock = Clock(clock_type=ClockType.SYSTEM_TIME)
 
         self.js_pub = self.create_publisher(JointState, joint_states_topic, 10)
         self.state_sub = self.create_subscription(
@@ -124,7 +126,7 @@ class RealMoveItBridge(Node):
             return
 
         js = JointState()
-        js.header.stamp = self.get_clock().now().to_msg()
+        js.header.stamp = self.system_clock.now().to_msg()
         js.name = self.joint_names
         js.position = positions
         if len(msg.joint_torques) == len(self.joint_names):
