@@ -25,13 +25,14 @@ from launch.actions import (
     IncludeLaunchDescription,
     Shutdown,
 )
-from launch.conditions import UnlessCondition
+from launch.conditions import IfCondition, UnlessCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     Command,
     FindExecutable,
     LaunchConfiguration,
     PathJoinSubstitution,
+    PythonExpression,
 )
 from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
@@ -60,6 +61,8 @@ def generate_launch_description():
     namespace_parameter_name = "namespace"
     load_gripper_parameter_name = "load_gripper"
     ee_id_parameter_name = "ee_id"
+    bridge_parameter_name = "bridge"
+    arm_side_parameter_name = "arm_side"
 
     robot_ip = LaunchConfiguration(robot_ip_parameter_name)
     use_fake_hardware = LaunchConfiguration(use_fake_hardware_parameter_name)
@@ -67,6 +70,8 @@ def generate_launch_description():
     namespace = LaunchConfiguration(namespace_parameter_name)
     load_gripper = LaunchConfiguration(load_gripper_parameter_name)
     ee_id = LaunchConfiguration(ee_id_parameter_name)
+    bridge = LaunchConfiguration(bridge_parameter_name)
+    arm_side = LaunchConfiguration(arm_side_parameter_name)
 
     # Command-line arguments
 
@@ -222,6 +227,21 @@ def generate_launch_description():
         namespace=namespace,
         name="fr3_arm_controller",         # 중요: 노드 이름을 fr3_arm_controller로 해서
         output="screen",
+        condition=IfCondition(
+            PythonExpression(["'", bridge, "' == 'isaac'"])
+        ),
+    )
+
+    real_bridge_node = Node(
+        package="franka_kistar_isaac_moveit",
+        executable="real_moveit_bridge",
+        namespace=namespace,
+        name="fr3_arm_controller",
+        output="screen",
+        parameters=[{"arm_side": arm_side}],
+        condition=IfCondition(
+            PythonExpression(["'", bridge, "' == 'real'"])
+        ),
     )
 
     # ros2_controllers_path = os.path.join(
@@ -293,6 +313,16 @@ def generate_launch_description():
         default_value="",
         description="Namespace for the robot.",
     )
+    bridge_arg = DeclareLaunchArgument(
+        bridge_parameter_name,
+        default_value="isaac",
+        description="Bridge type (isaac or real).",
+    )
+    arm_side_arg = DeclareLaunchArgument(
+        arm_side_parameter_name,
+        default_value="right",
+        description="Arm side for real bridge (left or right).",
+    )
     load_gripper_arg = DeclareLaunchArgument(
         load_gripper_parameter_name,
         default_value="true",
@@ -333,6 +363,8 @@ def generate_launch_description():
         [
             robot_arg,
             namespace_arg,
+            bridge_arg,
+            arm_side_arg,
             load_gripper_arg,
             ee_id_arg,
             use_fake_hardware_arg,
@@ -345,7 +377,8 @@ def generate_launch_description():
             # joint_state_publisher,
             # franka_robot_state_broadcaster,
             gripper_launch_file,
-            isaac_bridge_node, 
+            isaac_bridge_node,
+            real_bridge_node,
         ]
         # + load_controllers
     )
