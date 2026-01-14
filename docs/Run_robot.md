@@ -31,17 +31,30 @@ Franka Arm
 ```shell
     rs  # or rsi
     ros2 topic list
+
+    # Safe Pose
     ros2 topic pub --once /franka/arm_target/right kistar_hand_ros2/msg/FrankaArmTarget "{joint_targets: [0.5, -0.6, 0.7, -2.4, -0.02, 1.2, 1.], arm_id: 0}"
+
+    # See CY (Experimental)
+    ros2 topic pub --once /franka/arm_target/right kistar_hand_ros2/msg/FrankaArmTarget "{joint_targets: [0.5, -0.6, 0.7, -2., -0.0, 3.2, -0.8], arm_id: 0}"
+
+
 ```
+
+
 
 KISTAR Hand
 ```shell
     rs  # or rsi
     ros2 topic list
+
     ros2 topic pub --once /hand/target/right kistar_hand_ros2/msg/HandTarget "{joint_targets: [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000], movement_duration: 1.0, hand_id: 0}"
 
     # Funny Pose
     ros2 topic pub --once /hand/target/right kistar_hand_ros2/msg/HandTarget "{joint_targets: [4000, 0, 4000, 3000, 0, 4000, 4000, 3500, 0, 0, 1000, 1000, 0, 4000, 4000, 3500], movement_duration: 1.0, hand_id: 0}"
+
+    # V Pose
+    ros2 topic pub --once /hand/target/right kistar_hand_ros2/msg/HandTarget "{joint_targets: [4000, 0, 4000, 3000, -500, 0, 500, 500, 500, 0, 500, 500, 0, 4000, 4000, 3500], movement_duration: 1.0, hand_id: 0}"
 ```
 
 KISTAR Hand Arrange:  
