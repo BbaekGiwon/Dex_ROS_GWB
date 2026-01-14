@@ -3,7 +3,9 @@ import time
 
 import rclpy
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
+from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.clock import Clock, ClockType
+from rclpy.executors import MultiThreadedExecutor
 from rclpy.node import Node
 from rclpy.qos import qos_profile_sensor_data
 
@@ -89,21 +91,24 @@ class RealMoveItBridge(Node):
                 "fr3_joint7",
             ]
 
-        self.command_rate_hz = max(
-            self.get_parameter("command_rate_hz").get_parameter_value().double_value,
-            1.0,
+        self.command_rate_hz = (
+            self.get_parameter("command_rate_hz").get_parameter_value().double_value
         )
+        if self.command_rate_hz > 0.0:
+            self.command_rate_hz = max(self.command_rate_hz, 1.0)
         self.min_dt = max(
             self.get_parameter("min_dt").get_parameter_value().double_value, 0.001
         )
         self.system_clock = Clock(clock_type=ClockType.SYSTEM_TIME)
 
+        self.cb_group = ReentrantCallbackGroup()
         self.js_pub = self.create_publisher(JointState, joint_states_topic, 10)
         self.state_sub = self.create_subscription(
             FrankaArmState,
             arm_state_topic,
             self._arm_state_cb,
             qos_profile_sensor_data,
+            callback_group=self.cb_group,
         )
         self.cmd_pub = self.create_publisher(FrankaArmTarget, arm_target_topic, 10)
 
@@ -114,6 +119,7 @@ class RealMoveItBridge(Node):
             execute_callback=self.execute_callback,
             goal_callback=self.goal_callback,
             cancel_callback=self.cancel_callback,
+            callback_group=self.cb_group,
         )
 
         self.get_logger().info(
@@ -198,11 +204,21 @@ class RealMoveItBridge(Node):
             positions_list.append(positions)
             last_t = t
 
-        if len(times) == 1:
-            cmd = FrankaArmTarget()
-            cmd.joint_targets = positions_list[0]
-            cmd.arm_id = self.arm_id
-            self.cmd_pub.publish(cmd)
+        if self.command_rate_hz <= 0.0 or len(times) == 1:
+            for i, positions in enumerate(positions_list):
+                if goal_handle.is_cancel_requested:
+                    self.get_logger().info("[Action] Goal canceled")
+                    goal_handle.canceled()
+                    return FollowJointTrajectory.Result()
+
+                cmd = FrankaArmTarget()
+                cmd.joint_targets = positions
+                cmd.arm_id = self.arm_id
+                self.cmd_pub.publish(cmd)
+
+                if i < len(times) - 1:
+                    dt = max(times[i + 1] - times[i], self.min_dt)
+                    time.sleep(dt)
         else:
             duration = times[-1]
             dt = 1.0 / self.command_rate_hz
@@ -261,11 +277,14 @@ class RealMoveItBridge(Node):
 def main(args=None):
     rclpy.init(args=args)
     node = RealMoveItBridge()
+    executor = MultiThreadedExecutor(num_threads=2)
+    executor.add_node(node)
     try:
-        rclpy.spin(node)
+        executor.spin()
     except KeyboardInterrupt:
         pass
     finally:
+        executor.shutdown()
         node.destroy_node()
         rclpy.shutdown()
 
