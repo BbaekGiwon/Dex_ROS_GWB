@@ -27,6 +27,10 @@ I will irregularly update the development progress in [Link](https://cold-young.
 
 - [ ] Connect with Real Environment 
 
+
+## IsaacSim Installation (Local)
+Install `IsaacSim-5.1.0` [[Link]](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/download.html)
+
 ~~~~
 
 ```
