@@ -14,6 +14,21 @@
 
 * **Caution:** I always have been developing this repostiory in `cy` branch, It may be experimental setup. <br> Thus, I **strongly** recommand that use `main` branch. 
 
+
+## IsaacSim Installation (Local)
+Install `IsaacSim-5.1.0` [[Link]](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/download.html)
+
+## Docs 
+- Initial Settings (H/W, Network, ROS2 ..etc): [`\docs`](./docs) 
+- MoveIt and Specific Packages for MOTIE Projects: [`\examples`](./examples/)
+
+## Package Build
+```shell
+cd ~/isaac_ws/dex_soldering/dex_ros/isaac-ros/kistar_ws
+colcon build --symlink-install
+bash ./install/local_setup.sh
+```
+
 ## TODO! 
 I will irregularly update the development progress in [Link](https://cold-young.github.io/projects/kist-soldering/). (only devleopment status! not detail information)
 
@@ -31,17 +46,7 @@ I will irregularly update the development progress in [Link](https://cold-young.
   - [ ] RL policy to MoveIt and Robot
 
 
-## IsaacSim Installation (Local)
-Install `IsaacSim-5.1.0` [[Link]](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/download.html)
 
-
-## Build 
-```shell
-cd ~/isaac_ws/dex_soldering/dex_ros/isaac-ros/kistar_ws
-rm -rf build/kistar_hand_ros2 install/kistar_hand_ros2
-colcon build --symlink-install --packages-select kistar_hand_ros2
-
-~~~~
 
 ```
 @disc{ahn2025Dexros,
