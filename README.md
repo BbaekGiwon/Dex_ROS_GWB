@@ -14,20 +14,40 @@
 
 * **Caution:** I always have been developing this repostiory in `cy` branch, It may be experimental setup. <br> Thus, I **strongly** recommand that use `main` branch. 
 
+
+## IsaacSim Installation (Local)
+Install `IsaacSim-5.1.0` [[Link]](https://docs.isaacsim.omniverse.nvidia.com/5.1.0/installation/download.html)
+
+## Docs 
+- Initial Settings (H/W, Network, ROS2 ..etc): [`\docs`](./docs) 
+- MoveIt and Specific Packages for MOTIE Projects: [`\examples`](./examples/)
+
+## Package Build
+```shell
+cd ~/isaac_ws/dex_soldering/dex_ros/isaac-ros/kistar_ws
+colcon build --symlink-install
+bash ./install/local_setup.sh
+```
+
 ## TODO! 
 I will irregularly update the development progress in [Link](https://cold-young.github.io/projects/kist-soldering/). (only devleopment status! not detail information)
 
-- [ ] Initial Setting
+- [x] Initial Setting
+
   - [x] Our own docker/singluarity image
 
 - [ ] ROS2 Interface 
-  - [ ] Planning (Moveit) - w/ ros topic
+  - [x] Planning (Moveit) - w/ ros topic
   - [ ] Perception 
   - [x] RViz in ROS2 + IsaacSim 5.0
+  - [ ] TF and Vision Calibration 
+  - [ ] Obstacle Decection + Planning
 
-- [ ] Connect with Real Environment 
+- [x] Connect with Real Environment 
+  - [ ] RL policy to MoveIt and Robot
 
-~~~~
+
+
 
 ```
 @disc{ahn2025Dexros,

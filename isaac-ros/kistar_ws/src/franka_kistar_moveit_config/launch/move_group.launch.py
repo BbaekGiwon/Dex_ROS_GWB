@@ -107,7 +107,10 @@ def generate_launch_description():
 
     kinematics_yaml = load_yaml(
         'franka_kistar_moveit_config', 'config/kinematics.yaml')
-
+    joint_limits_yaml = load_yaml("franka_kistar_isaac_moveit_config", "config/joint_limits.yaml")
+    robot_description_planning = {
+        "robot_description_planning": joint_limits_yaml
+    }
     run_move_group_node = Node(
         package='moveit_ros_move_group',
         executable='move_group',
@@ -116,6 +119,7 @@ def generate_launch_description():
             robot_description,
             robot_description_semantic,
             kinematics_yaml,
+            robot_description_planning
         ],
     )
 
