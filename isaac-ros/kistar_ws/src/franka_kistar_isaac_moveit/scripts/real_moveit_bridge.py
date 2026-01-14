@@ -5,6 +5,7 @@ import rclpy
 from rclpy.action import ActionServer, CancelResponse, GoalResponse
 from rclpy.clock import Clock, ClockType
 from rclpy.node import Node
+from rclpy.qos import qos_profile_sensor_data
 
 from control_msgs.action import FollowJointTrajectory
 from sensor_msgs.msg import JointState
@@ -21,7 +22,7 @@ class RealMoveItBridge(Node):
         self.declare_parameter("arm_side", "right")
         self.declare_parameter("arm_state_topic", "")
         self.declare_parameter("arm_target_topic", "")
-        self.declare_parameter("joint_states_topic", "/joint_states")
+        self.declare_parameter("joint_states_topic", "joint_states")
         self.declare_parameter(
             "traj_action_name", "/fr3_arm_controller/follow_joint_trajectory"
         )
@@ -99,7 +100,10 @@ class RealMoveItBridge(Node):
 
         self.js_pub = self.create_publisher(JointState, joint_states_topic, 10)
         self.state_sub = self.create_subscription(
-            FrankaArmState, arm_state_topic, self._arm_state_cb, 10
+            FrankaArmState,
+            arm_state_topic,
+            self._arm_state_cb,
+            qos_profile_sensor_data,
         )
         self.cmd_pub = self.create_publisher(FrankaArmTarget, arm_target_topic, 10)
 
