@@ -33,6 +33,7 @@ bash ./install/local_setup.sh
 I will irregularly update the development progress in [Link](https://cold-young.github.io/projects/kist-soldering/). (only devleopment status! not detail information)
 
 - [x] Initial Setting
+
   - [x] Our own docker/singluarity image
 
 - [ ] ROS2 Interface 
