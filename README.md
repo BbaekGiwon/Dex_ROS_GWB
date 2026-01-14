@@ -17,15 +17,18 @@
 ## TODO! 
 I will irregularly update the development progress in [Link](https://cold-young.github.io/projects/kist-soldering/). (only devleopment status! not detail information)
 
-- [ ] Initial Setting
+- [x] Initial Setting
   - [x] Our own docker/singluarity image
 
 - [ ] ROS2 Interface 
-  - [ ] Planning (Moveit) - w/ ros topic
+  - [x] Planning (Moveit) - w/ ros topic
   - [ ] Perception 
   - [x] RViz in ROS2 + IsaacSim 5.0
+  - [ ] TF and Vision Calibration 
+  - [ ] Obstacle Decection + Planning
 
-- [ ] Connect with Real Environment 
+- [x] Connect with Real Environment 
+  - [ ] RL policy to MoveIt and Robot
 
 
 ## IsaacSim Installation (Local)
