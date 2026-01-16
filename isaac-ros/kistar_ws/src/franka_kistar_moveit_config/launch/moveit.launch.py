@@ -40,16 +40,6 @@ from launch_ros.substitutions import FindPackageShare
 
 import yaml
 
-
-# def load_yaml(package_name, file_path):
-#     package_path = get_package_share_directory(package_name)
-#     absolute_file_path = os.path.join(package_path, file_path)
-
-#     try:
-#         with open(absolute_file_path, "r") as file:
-#             return yaml.safe_load(file)
-#     except EnvironmentError:
-#         return None
 def load_yaml(package_name, file_path):
     package_path = get_package_share_directory(package_name)
     absolute_file_path = os.path.join(package_path, file_path)
@@ -68,9 +58,7 @@ def generate_launch_description():
     bridge_parameter_name = "bridge"
     arm_side_parameter_name = "arm_side"
     command_rate_hz_parameter_name = "command_rate_hz"
-
     resample_dt_parameter_name = "resample_dt"
-
     robot_ip = LaunchConfiguration(robot_ip_parameter_name)
     use_fake_hardware = LaunchConfiguration(use_fake_hardware_parameter_name)
     fake_sensor_commands = LaunchConfiguration(fake_sensor_commands_parameter_name)
@@ -160,17 +148,6 @@ def generate_launch_description():
     )
     ompl_planning_pipeline_config["move_group"].update(ompl_planning_yaml)
 
-    # totg_params = {
-    #     "move_group": {
-    #         "resample_dt": ParameterValue(resample_dt, value_type=float),
-
-    #         # 아래는 선택(필요 없으면 지워도 됨)
-    #         # 너무 빡빡하면 리샘플/시간파라 실패하는 케이스가 있어서 기본은 적당히 둠.
-    #         "path_tolerance": 0.1,
-    #         "min_angle_change": 0.001,
-    #     }
-    # }
-
     totg_params = {
         "time_optimal_trajectory_generation.resample_dt": ParameterValue(resample_dt, value_type=float),
         "time_optimal_trajectory_generation.path_tolerance": 0.1,
@@ -188,9 +165,7 @@ def generate_launch_description():
 
     trajectory_execution = {
         "moveit_manage_controllers": True,
-        # "trajectory_execution.allowed_execution_duration_scaling": 1.2,
         "trajectory_execution.allowed_execution_duration_scaling": 3.0,
-        # "trajectory_execution.allowed_goal_duration_margin": 0.5,
         "trajectory_execution.allowed_goal_duration_margin": 2.0,
         "trajectory_execution.allowed_start_tolerance": 0.01,
     }
@@ -215,7 +190,7 @@ def generate_launch_description():
             kinematics_yaml,
             # joint_limits_yaml,
             ompl_planning_pipeline_config,
-            totg_params,  # ✅ 여기 추가
+            totg_params,  
             trajectory_execution,
             moveit_controllers,
             planning_scene_monitor_parameters,
@@ -271,7 +246,7 @@ def generate_launch_description():
         output="screen",
         parameters=[{"arm_side": arm_side, 
                      "command_rate_hz": command_rate_hz,
-                     "publish_dummy_hand_joints": True,   # 임시
+                     "publish_dummy_hand_joints": True,   #TODO
                      }],
         condition=IfCondition(PythonExpression(["'", bridge, "' == 'real'"])),
     )
@@ -304,7 +279,6 @@ def generate_launch_description():
         description="Command streaming rate for real bridge (Hz).",
     )
 
-    # ✅ 추가: resample_dt 런치 인자
     resample_dt_arg = DeclareLaunchArgument(
         resample_dt_parameter_name,
         default_value="0.01",
@@ -350,7 +324,6 @@ def generate_launch_description():
             use_fake_hardware_parameter_name: use_fake_hardware,
             "namespace": namespace,
         }.items(),
-        # ✅ 추가: load_gripper가 true일 때만
         condition=IfCondition(load_gripper),
     )
 
@@ -361,7 +334,7 @@ def generate_launch_description():
             bridge_arg,
             arm_side_arg,
             command_rate_hz_arg,
-            resample_dt_arg,     # ✅ 추가
+            resample_dt_arg,     
             load_gripper_arg,
             ee_id_arg,
             use_fake_hardware_arg,

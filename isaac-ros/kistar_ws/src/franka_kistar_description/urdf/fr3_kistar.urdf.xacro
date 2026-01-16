@@ -18,7 +18,7 @@
       kinematics="${xacro.load_yaml('$(find franka_kistar_description)/robots/fr3/kinematics.yaml')}"
       accelerometer_config="${xacro.load_yaml('$(find franka_kistar_description)/robots/fr3/accelerometers.yaml')}"
       dynamics="${xacro.load_yaml('$(find franka_kistar_description)/robots/fr3/dynamics.yaml')}"
-      gazebo="true"
+      gazebo="false"
       hand="false"                
       ee_id="none"                
       special_connection=""
@@ -42,6 +42,7 @@
   <joint name="kistar_hand_mount" type="fixed">
     <parent link="fr3_link8"/>
     <child  link="kistar_hand"/> 
+    <origin xyz="0 0 0" rpy="0 0 -0.785"/>
   </joint>
 
 </robot>
