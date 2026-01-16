@@ -188,6 +188,7 @@ def generate_launch_description():
             robot_description_semantic,
             robot_description_planning,
             kinematics_yaml,
+            # joint_limits_yaml,
             ompl_planning_pipeline_config,
             totg_params,  
             trajectory_execution,
