@@ -39,14 +39,16 @@ I will irregularly update the development progress in [Link](https://cold-young.
 - [ ] ROS2 Interface 
   - [x] Planning (Moveit) - w/ ros topic
   - [ ] Perception 
-  - [x] RViz in ROS2 + IsaacSim 5.0
-  - [ ] TF and Vision Calibration 
-  - [ ] Obstacle Decection + Planning
+  - [x] RViz in ROS2 + IsaacSim 5.1
+  - [ ] TF and Vision Calibration (ONGOING)
+  - [ ] Obstacle Decection + Planning (ONGOING)
 
 - [x] Connect with Real Environment 
   - [ ] RL policy to MoveIt and Robot
 
+___
 
+![](./fig/real_moveit.gif)
 
 
 ```
