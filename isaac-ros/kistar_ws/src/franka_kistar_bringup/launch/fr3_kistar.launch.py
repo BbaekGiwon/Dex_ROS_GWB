@@ -1,4 +1,5 @@
 import os
+
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, OpaqueFunction, Shutdown
@@ -12,24 +13,19 @@ from launch.substitutions import Command, FindExecutable
 
 def generate_robot_nodes(context):
     namespace = LaunchConfiguration('namespace').perform(context)
-    # planning_context
-    urdf_path = os.path.join(
+
+    # -----------------------------
+    # Robot xacro -> robot_description
+    # -----------------------------
+    robot_urdf_path = os.path.join(
         get_package_share_directory("franka_kistar_description"),
         "urdf",
         "fr3_kistar.urdf.xacro",
     )
 
-    tf_remaps = [
-        ('tf', '/tf'),
-        ('tf_static', '/tf_static'),
-        ('robot_description', '/robot_description'),  # rsp가 topic publish할 때
-    ]
-
-    # --- xacro -> robot_description ---
-    xacro_cmd = Command([
-        FindExecutable(name='xacro'),
-        ' ',
-        urdf_path,
+    robot_xacro_cmd = Command([
+        FindExecutable(name='xacro'), ' ',
+        robot_urdf_path,
         ' ros2_control:=', LaunchConfiguration('enable_ros2_control'),
         ' arm_prefix:=', LaunchConfiguration('arm_prefix'),
         ' robot_ip:=', LaunchConfiguration('robot_ip'),
@@ -39,25 +35,39 @@ def generate_robot_nodes(context):
     ])
 
     robot_description = {
-        'robot_description': ParameterValue(xacro_cmd, value_type=str)
+        'robot_description': ParameterValue(robot_xacro_cmd, value_type=str)
     }
+
     controllers_yaml = LaunchConfiguration('controllers_yaml').perform(context)
 
-    # ---- Static TF args ----
-    world_frame = LaunchConfiguration('world_frame').perform(context)
-    robot_base_frame = LaunchConfiguration('robot_base_frame').perform(context)
-    table_frame = LaunchConfiguration('table_frame').perform(context)
+    # -----------------------------
+    # Table xacro -> table_description
+    # -----------------------------
+    table_xacro_path = PathJoinSubstitution([
+        FindPackageShare("franka_kistar_bringup"),
+        "urdf",
+        "table.urdf.xacro",
+    ])
 
-    table_xyz = LaunchConfiguration('table_xyz').perform(context).split()
-    table_rpy = LaunchConfiguration('table_rpy').perform(context).split()
+    table_xacro_cmd = Command([
+        FindExecutable(name='xacro'), ' ',
+        table_xacro_path,
+    ])
 
-    if len(table_xyz) != 3 or len(table_rpy) != 3:
-        raise RuntimeError("table_xyz / table_rpy must be 'x y z' / 'r p y' (3 values each)")
+    table_description = {
+        'robot_description': ParameterValue(table_xacro_cmd, value_type=str)
+    }
 
-    world_to_robot_base_tf = Node(
+    # -----------------------------
+    # Static TFs
+    # world -> base
+    # base  -> fr3_link0  (mount orientation)
+    # world -> table_link (table pose)
+    # -----------------------------
+    world_to_base_tf = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
-        name='world_to_robot_base_tf',
+        name='world_to_base_tf',
         arguments=[
             '--x', LaunchConfiguration('robot_base_x'),
             '--y', LaunchConfiguration('robot_base_y'),
@@ -66,7 +76,21 @@ def generate_robot_nodes(context):
             '--pitch', LaunchConfiguration('robot_base_pitch'),
             '--yaw',   LaunchConfiguration('robot_base_yaw'),
             '--frame-id', LaunchConfiguration('world_frame'),
-            '--child-frame-id', LaunchConfiguration('robot_base_frame'),
+            '--child-frame-id', 'base',
+        ],
+        remappings=[('tf', '/tf'), ('tf_static', '/tf_static')],
+        output='screen',
+    )
+
+    base_to_fr3_tf = Node(
+        package='tf2_ros',
+        executable='static_transform_publisher',
+        name='base_to_fr3_link0_tf',
+        arguments=[
+            '--x', '0', '--y', '0', '--z', '0',
+            '--roll', '0', '--pitch', '0', '--yaw', '0',
+            '--frame-id', 'base',
+            '--child-frame-id', 'fr3_link0',
         ],
         remappings=[('tf', '/tf'), ('tf_static', '/tf_static')],
         output='screen',
@@ -75,19 +99,26 @@ def generate_robot_nodes(context):
     world_to_table_tf = Node(
         package='tf2_ros',
         executable='static_transform_publisher',
-        namespace=namespace,
-        remappings=[('tf', '/tf'), ('tf_static', '/tf_static')],
+        name='world_to_table_tf',
         arguments=[
-            '--x', table_xyz[0], '--y', table_xyz[1], '--z', table_xyz[2],
-            '--roll', table_rpy[0], '--pitch', table_rpy[1], '--yaw', table_rpy[2],
-            '--frame-id', world_frame,
-            '--child-frame-id', table_frame,
+            '--x', LaunchConfiguration('table_x'),
+            '--y', LaunchConfiguration('table_y'),
+            '--z', LaunchConfiguration('table_z'),
+            '--roll',  LaunchConfiguration('table_roll'),
+            '--pitch', LaunchConfiguration('table_pitch'),
+            '--yaw',   LaunchConfiguration('table_yaw'),
+            '--frame-id', LaunchConfiguration('world_frame'),
+            '--child-frame-id', LaunchConfiguration('table_frame'),  # default: table_link
         ],
+        remappings=[('tf', '/tf'), ('tf_static', '/tf_static')],
         output='screen',
     )
 
-    # --- robot_state_publisher (TF의 핵심) ---
-    rsp = Node(
+    # -----------------------------
+    # robot_state_publisher: Robot
+    # publish /robot_description (for RViz RobotModel)
+    # -----------------------------
+    robot_rsp = Node(
         package='robot_state_publisher',
         executable='robot_state_publisher',
         name='robot_state_publisher',
@@ -101,15 +132,33 @@ def generate_robot_nodes(context):
         output='screen',
     )
 
-    # --- ros2_control (옵션) ---
+    # -----------------------------
+    # robot_state_publisher: Table
+    # publish /table_description (for RViz RobotModel 2nd)
+    # -----------------------------
+    table_rsp = Node(
+        package='robot_state_publisher',
+        executable='robot_state_publisher',
+        name='table_state_publisher',
+        namespace='table',
+        parameters=[table_description, {'publish_robot_description': True}],
+        remappings=[
+            ('tf', '/tf'),
+            ('tf_static', '/tf_static'),
+            ('robot_description', '/table_description'),
+        ],
+        output='screen',
+    )
+
+    # -----------------------------
+    # ros2_control (optional)
+    # NOTE: real robot 미연결이면 터짐 -> 기본 false 권장
+    # -----------------------------
     ros2_control_node = Node(
         package='controller_manager',
         executable='ros2_control_node',
         namespace=namespace,
-        parameters=[
-            controllers_yaml,
-            robot_description
-        ],
+        parameters=[controllers_yaml, robot_description],
         output='screen',
         on_exit=Shutdown(),
         condition=IfCondition(LaunchConfiguration('enable_ros2_control')),
@@ -131,11 +180,12 @@ def generate_robot_nodes(context):
         arguments=['franka_robot_state_broadcaster'],
         parameters=[{'arm_id': LaunchConfiguration('arm_id').perform(context)}],
         output='screen',
-        # fake hardware면 굳이 안 띄워도 됨
         condition=IfCondition(LaunchConfiguration('enable_ros2_control')),
     )
 
-    # --- ros2_control OFF일 때: joint_state_publisher_gui (URDF를 파라미터로 직접 줘야 함) ---
+    # -----------------------------
+    # joint_state_publisher (when ros2_control is OFF)
+    # -----------------------------
     jsp_gui = Node(
         package='joint_state_publisher_gui',
         executable='joint_state_publisher_gui',
@@ -156,7 +206,6 @@ def generate_robot_nodes(context):
         condition=UnlessCondition(LaunchConfiguration('use_joint_state_gui')),
     )
 
-    # --- RViz: robot_description을 반드시 parameters로 넘겨라 (MoveIt에서 되던 핵심 이유) ---
     rviz_config_path = PathJoinSubstitution([
         FindPackageShare('franka_kistar_bringup'),
         'rviz',
@@ -166,27 +215,26 @@ def generate_robot_nodes(context):
     rviz_node = Node(
         package='rviz2',
         executable='rviz2',
-        name='rviz',          # /rviz 고정
+        name='rviz',
         namespace=namespace,
         arguments=['-d', rviz_config_path],
-        parameters=[robot_description],   # <= 이게 핵심
+        parameters=[robot_description],  # robot은 기존대로
         output='screen',
     )
 
-    nodes = [
-        world_to_robot_base_tf,
+    return [
+        world_to_base_tf,
         world_to_table_tf,
-        rsp,
+        base_to_fr3_tf,
+        table_rsp,
+        robot_rsp,
         rviz_node,
         ros2_control_node,
         jsb_spawner,
         franka_state_spawner,
-        # (enable_ros2_control=false이면 GUI로 조인트 조작 가능)
-        jsp_gui if LaunchConfiguration('enable_ros2_control').perform(context) == 'false' else None,
-        jsp if LaunchConfiguration('enable_ros2_control').perform(context) == 'false' else None,
+        jsp_gui,
+        jsp,
     ]
-
-    return [n for n in nodes if n is not None]
 
 
 def generate_launch_description():
@@ -195,7 +243,6 @@ def generate_launch_description():
         DeclareLaunchArgument('arm_prefix', default_value=''),
         DeclareLaunchArgument('namespace', default_value=''),
 
-        DeclareLaunchArgument('urdf_file', default_value='fr3_kistar.urdf.xacro'),
         DeclareLaunchArgument('robot_ip', default_value='172.16.0.3'),
         DeclareLaunchArgument('use_fake_hardware', default_value='false'),
         DeclareLaunchArgument('fake_sensor_commands', default_value='false'),
@@ -209,24 +256,30 @@ def generate_launch_description():
             ])
         ),
 
-        # --- TF ---
+        # ---- frames ----
         DeclareLaunchArgument('world_frame', default_value='world'),
-        DeclareLaunchArgument('robot_base_frame', default_value='fr3_link0'),
-        DeclareLaunchArgument('table_frame', default_value='table_link'),
-        DeclareLaunchArgument('robot_base_x', default_value='0.0'),
-        DeclareLaunchArgument('robot_base_y', default_value='0.0'),
-        DeclareLaunchArgument('robot_base_z', default_value='0.0'),
-        DeclareLaunchArgument('robot_base_roll',  default_value='0.7689'),
+
+        # ---- robot base pose (world -> base) ----
+        DeclareLaunchArgument('robot_base_x', default_value='0.066'),
+        DeclareLaunchArgument('robot_base_y', default_value='-0.122'),
+        DeclareLaunchArgument('robot_base_z', default_value='0.099'),
+        DeclareLaunchArgument('robot_base_roll',  default_value='0.785'),
         DeclareLaunchArgument('robot_base_pitch', default_value='0.0'),
         DeclareLaunchArgument('robot_base_yaw',   default_value='0.0'),
-        DeclareLaunchArgument('table_xyz', default_value='0.6 0.0 0.0'),
-        DeclareLaunchArgument('table_rpy', default_value='0 0 0'),
 
-        # --- switches ---
-        DeclareLaunchArgument('enable_ros2_control', default_value='true'),
+        # ---- table pose (world -> table_link) ----
+        DeclareLaunchArgument('table_frame', default_value='table_link'),
+        DeclareLaunchArgument('table_x', default_value='0.0'),
+        DeclareLaunchArgument('table_y', default_value='0.0'),
+        DeclareLaunchArgument('table_z', default_value='0.0'),
+        DeclareLaunchArgument('table_roll',  default_value='0.0'),
+        DeclareLaunchArgument('table_pitch', default_value='0.0'),
+        DeclareLaunchArgument('table_yaw',   default_value='0.0'),
+
+        # ---- switches ----
+        DeclareLaunchArgument('enable_ros2_control', default_value='false'),  # <- 현실적으로 기본 false 추천
         DeclareLaunchArgument('use_joint_state_gui', default_value='true'),
 
-        # RViz config
         DeclareLaunchArgument(
             'rviz_config',
             default_value='fr3_kistar.rviz',
