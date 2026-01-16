@@ -8,7 +8,7 @@ endif()
 find_package(ament_cmake REQUIRED)
 
 install(
-  DIRECTORY launch resource test franka_kistar_bringup
+  DIRECTORY launch resource test franka_kistar_bringup rviz
   DESTINATION share/${PROJECT_NAME}
 )
 

@@ -767,6 +767,35 @@
       </geometry>
     </collision> -->
   </link>
+
+
+  <link name="lab_table">
+    <visual>
+      <origin xyz="-0.25 -1.1 -0.15" rpy="-0.785 0 0"/>
+      <geometry>
+        <mesh filename="package://franka_kistar_description/meshes/table/soldering_table.obj" scale="1. 1. 1."/>
+      </geometry>
+    </visual> 
+
+    <collision>
+      <!-- 충돌 모델도 동일 박스 -->
+      <!-- <origin xyz="0.5 0.0 -0.36" rpy="-0.785 0 0"/>
+      <geometry>
+        <box size="1.0 0.6 0.72"/>
+      </geometry> -->
+        <origin xyz="-0.25 -1.1 -0.15" rpy="-0.785 0 0"/>
+        <geometry>
+          <mesh filename="package://franka_kistar_description/meshes/table/soldering_table.obj" scale="1. 1. 1."/>
+        </geometry>
+    </collision>
+  </link>
+
+  <joint name="lab_table_fixed" type="fixed">
+    <parent link="fr3_link0"/>
+    <child  link="lab_table"/>
+  </joint>
+
+
 </robot>
 
 

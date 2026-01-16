@@ -28,6 +28,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
+        'scene_table_marker = franka_kistar_bringup.scene_table_marker:main',
         ],
     },
 )
