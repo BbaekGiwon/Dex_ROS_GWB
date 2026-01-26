@@ -16,6 +16,7 @@ from launch_ros.actions import Node
 from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 from launch.substitutions import IfElseSubstitution, TextSubstitution
+from launch.actions import TimerAction
 
 
 def load_yaml(package_name, file_path):
@@ -414,6 +415,22 @@ def generate_launch_description():
         condition=IfCondition(PythonExpression(["'", bridge, "' == 'real'"])),
     )
 
+    scene_boxes_node = Node(
+        package="franka_kistar_bringup",
+        executable="planning_scene_static_boxes.py",  # setup.py entry point 이름
+        output="screen",
+        parameters=[{
+            "world_frame": LaunchConfiguration("world_frame"),
+            "table_frame": LaunchConfiguration("table_frame"),
+            "ttable_frame": LaunchConfiguration("ttable_frame"),
+            "table_size": LaunchConfiguration("table_size"),
+            "ttable_size": LaunchConfiguration("ttable_size"),
+        }],
+    )
+
+    # (중요) TF/MoveGroup 뜨는 시간 주려고 2초 지연 추천
+    scene_boxes_delayed = TimerAction(period=3.0, actions=[scene_boxes_node])
+
     # -----------------------------
     # Gripper (optional)
     # -----------------------------
@@ -445,7 +462,7 @@ def generate_launch_description():
         DeclareLaunchArgument("command_rate_hz", default_value="100.0"),
         DeclareLaunchArgument("resample_dt", default_value="0.01"),
 
-        DeclareLaunchArgument("load_gripper", default_value="true"),
+        DeclareLaunchArgument("load_gripper", default_value="false"),
         DeclareLaunchArgument("ee_id", default_value="franka_hand"),
 
         DeclareLaunchArgument("use_rviz", default_value="true"),
@@ -476,12 +493,15 @@ def generate_launch_description():
         DeclareLaunchArgument("table_pitch", default_value="0.0"),
         DeclareLaunchArgument("table_yaw", default_value="0.0"),
 
+        DeclareLaunchArgument("table_size", default_value="[1.2, 1.8, 0.05]"),
+        DeclareLaunchArgument("ttable_size", default_value="[0.5, 0.8, 0.03]"),
         DeclareLaunchArgument("camera_frame", default_value="camera_link"),
     ]
 
     return LaunchDescription(
         launch_args
         + [
+            
             # TFs
             world_to_base_tf,
             base_to_fr3_tf,
@@ -492,7 +512,7 @@ def generate_launch_description():
             ttable_to_marker1_tf,
             ttable_to_marker2_tf,
             ttable_to_marker3_tf,
-
+            
             # RSP
             table_rsp,
             ttable_rsp,
@@ -500,6 +520,7 @@ def generate_launch_description():
 
             # MoveIt
             run_move_group_node,
+            scene_boxes_delayed,
 
             # RViz
             rviz_node,
