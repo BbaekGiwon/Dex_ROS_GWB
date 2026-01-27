@@ -19,7 +19,7 @@ class PlanningSceneStaticBoxes(Node):
         self.declare_parameter("ttable_frame", "ttable_link")
         self.declare_parameter("table_size", [1.0, 0.8, 0.05])
         self.declare_parameter("ttable_size", [0.6, 0.6, 0.05])
-        self.declare_parameter("timeout_sec", 10.0)
+        self.declare_parameter("timeout_sec", 20.0)
 
         self.world_frame = self.get_parameter("world_frame").value
         self.table_frame = self.get_parameter("table_frame").value
@@ -66,7 +66,7 @@ class PlanningSceneStaticBoxes(Node):
             rclpy.shutdown()
             return
 
-        if not self.client.wait_for_service(timeout_sec=0.1):
+        if not self.client.wait_for_service(timeout_sec=0.5):
             return
 
         try:
@@ -85,7 +85,7 @@ class PlanningSceneStaticBoxes(Node):
             req.scene = scene
             fut = self.client.call_async(req)
 
-            rclpy.spin_until_future_complete(self, fut, timeout_sec=2.0)
+            rclpy.spin_until_future_complete(self, fut, timeout_sec=5.0)
             if fut.result() and fut.result().success:
                 self.get_logger().info("Applied planning scene: added table/ttable collision boxes.")
             else:
