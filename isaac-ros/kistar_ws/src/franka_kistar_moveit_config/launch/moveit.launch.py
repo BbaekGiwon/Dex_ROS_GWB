@@ -106,8 +106,8 @@ def generate_launch_description():
         )
     }
 
-    kinematics_yaml = load_yaml("franka_fr3_moveit_config", "config/kinematics.yaml")
-    joint_limits_yaml = load_yaml("franka_kistar_isaac_moveit_config", "config/joint_limits.yaml")
+    kinematics_yaml = load_yaml("franka_kistar_moveit_config", "config/kinematics.yaml")
+    joint_limits_yaml = load_yaml("franka_kistar_moveit_config", "config/joint_limits.yaml")
     robot_description_planning = {
         "robot_description_planning": joint_limits_yaml
     }
@@ -125,7 +125,7 @@ def generate_launch_description():
         }
     }
     ompl_planning_yaml = load_yaml(
-        "franka_fr3_moveit_config", "config/ompl_planning.yaml"
+        "franka_kistar_moveit_config", "config/ompl_planning.yaml"
     )
     ompl_planning_pipeline_config["move_group"].update(ompl_planning_yaml)
 
@@ -136,7 +136,7 @@ def generate_launch_description():
     }
     # Trajectory Execution Functionality
     moveit_simple_controllers_yaml = load_yaml(
-        "franka_fr3_moveit_config", "config/fr3_controllers.yaml"
+        "franka_kistar_moveit_config", "config/fr3_controllers.yaml"
     )
     moveit_controllers = {
         "moveit_simple_controller_manager": moveit_simple_controllers_yaml,
@@ -180,7 +180,7 @@ def generate_launch_description():
 
     # RViz
     rviz_base = os.path.join(
-        get_package_share_directory("franka_fr3_moveit_config"), "rviz"
+        get_package_share_directory("franka_kistar_moveit_config"), "rviz"
     )
     rviz_full_config = os.path.join(rviz_base, "moveit.rviz")
 

@@ -17,8 +17,11 @@ class PlanningSceneStaticBoxes(Node):
         self.declare_parameter("world_frame", "world")
         self.declare_parameter("table_frame", "table_link")
         self.declare_parameter("ttable_frame", "ttable_link")
+        self.declare_parameter("sw_frame", "sw_wall_frame")
         self.declare_parameter("table_size", [1.0, 0.8, 0.05])
         self.declare_parameter("ttable_size", [0.6, 0.6, 0.05])
+        self.declare_parameter("sw_wall_size", [0.1, 2., 2.])
+        
         self.declare_parameter("timeout_sec", 20.0)
 
         self.world_frame = self.get_parameter("world_frame").value
@@ -26,6 +29,9 @@ class PlanningSceneStaticBoxes(Node):
         self.ttable_frame = self.get_parameter("ttable_frame").value
         self.table_size = self.get_parameter("table_size").value
         self.ttable_size = self.get_parameter("ttable_size").value
+        
+        self.sw_wall_frame = self.get_parameter("sw_frame").value
+        self.sw_wall_size = self.get_parameter("sw_wall_size").value
         self.timeout_sec = float(self.get_parameter("timeout_sec").value)
 
         self.tf_buffer = tf2_ros.Buffer()
@@ -72,15 +78,19 @@ class PlanningSceneStaticBoxes(Node):
         try:
             table_pose = self._lookup_pose(self.table_frame)
             ttable_pose = self._lookup_pose(self.ttable_frame)
-
+            sw_wall_pose = self._lookup_pose(self.sw_wall_frame)
+            
             scene = PlanningScene()
             scene.is_diff = True
             scene.world.collision_objects.append(self._make_box("table", table_pose, self.table_size))
             scene.world.collision_objects.append(self._make_box("ttable", ttable_pose, self.ttable_size))
             
             # Table Camera
-            scene.world.collision_objects.append(self._make_box("camera", table_pose, [0.06, 0.06, 1.8]))
+            scene.world.collision_objects.append(self._make_box("camera", table_pose, [0.06, 0.06, 2.0]))
 
+            # SW Wall
+            scene.world.collision_objects.append(self._make_box("sw_wall", sw_wall_pose, self.sw_wall_size))
+            
             req = ApplyPlanningScene.Request()
             req.scene = scene
             fut = self.client.call_async(req)

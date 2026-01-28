@@ -122,7 +122,7 @@ ros2 run joint_state_publisher_gui joint_state_publisher_gui /tmp/fr3_kistar.urd
 rs 
 
 # 터미널 1 – Learn dummy robot
-ros2 launch franka_kistar_isaac_moveit_config moveit.launch.py   robot_ip:=dummy   use_fake_hardware:=true   launch_rviz:=true
+ros2 launch franka_kistar_moveit_config moveit.launch.py   robot_ip:=dummy   use_fake_hardware:=true   launch_rviz:=true
 
 
 # 터미널 2 – MoveIt + RViz (kistar URDF)

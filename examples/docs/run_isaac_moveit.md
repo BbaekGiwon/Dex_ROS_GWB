@@ -49,7 +49,7 @@ export ROS_LOCALHOST_ONLY=0
 
 ```shell
 rs
-ros2 launch franka_kistar_isaac_moveit_config moveit.launch.py \
+ros2 launch franka_kistar_moveit_config moveit.launch.py \
   robot_ip:=dummy use_fake_hardware:=true launch_rviz:=true
 ```
 

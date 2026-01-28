@@ -2,8 +2,13 @@ import os
 import yaml
 from ament_index_python.packages import get_package_share_directory
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, Shutdown
-from launch.conditions import IfCondition
+from launch.actions import (
+    DeclareLaunchArgument,
+    ExecuteProcess,
+    IncludeLaunchDescription,
+    Shutdown
+)
+from launch.conditions import UnlessCondition, IfCondition
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import (
     Command,
@@ -40,10 +45,8 @@ def generate_launch_description():
     bridge = LaunchConfiguration("bridge")  # isaac | real
     arm_side = LaunchConfiguration("arm_side")
     command_rate_hz = LaunchConfiguration("command_rate_hz")
-    resample_dt = LaunchConfiguration("resample_dt")
 
     load_gripper = LaunchConfiguration("load_gripper")
-    ee_id = LaunchConfiguration("ee_id")
 
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_source = LaunchConfiguration("rviz_source")  # kistar | moveit
@@ -89,9 +92,7 @@ def generate_launch_description():
         " robot_ip:=", robot_ip,
         " use_fake_hardware:=", use_fake_hardware,
         " fake_sensor_commands:=", fake_sensor_commands,
-        # MoveIt+execution을 위한 ros2_control interface 생성(URDF내)
         " ros2_control:=true",
-        # 필요하면 추가 인자도 여기에 계속 붙이면 됨 (arm_prefix 등)
     ])
 
     robot_description = {
@@ -125,8 +126,6 @@ def generate_launch_description():
     # Planning configs
     # -----------------------------
     kinematics_yaml = load_yaml("franka_kistar_moveit_config", "config/kinematics.yaml")
-    joint_limits_yaml = load_yaml("franka_kistar_moveit_config", "config/joint_limits.yaml")
-    robot_description_planning = {"robot_description_planning": joint_limits_yaml}
 
     ompl_planning_pipeline_config = {
         "move_group": {
@@ -144,12 +143,6 @@ def generate_launch_description():
     ompl_planning_yaml = load_yaml("franka_kistar_moveit_config", "config/ompl_planning.yaml")
     ompl_planning_pipeline_config["move_group"].update(ompl_planning_yaml)
 
-    totg_params = {
-        "time_optimal_trajectory_generation.resample_dt": ParameterValue(resample_dt, value_type=float),
-        "time_optimal_trajectory_generation.path_tolerance": 0.1,
-        "time_optimal_trajectory_generation.min_angle_change": 0.001,
-    }
-
     moveit_simple_controllers_yaml = load_yaml("franka_kistar_moveit_config", "config/fr3_controllers.yaml")
     moveit_controllers = {
         "moveit_simple_controller_manager": moveit_simple_controllers_yaml,
@@ -157,17 +150,17 @@ def generate_launch_description():
     }
 
     trajectory_execution = {
-        "moveit_manage_controllers": True,
-        "trajectory_execution.allowed_execution_duration_scaling": 3.0,
-        "trajectory_execution.allowed_goal_duration_margin": 2.0,
-        "trajectory_execution.allowed_start_tolerance": 0.01,
+        'moveit_manage_controllers': True,
+        'trajectory_execution.allowed_execution_duration_scaling': 1.2,
+        'trajectory_execution.allowed_goal_duration_margin': 0.5,
+        'trajectory_execution.allowed_start_tolerance': 0.01,
     }
 
     planning_scene_monitor_parameters = {
-        "publish_planning_scene": True,
-        "publish_geometry_updates": True,
-        "publish_state_updates": True,
-        "publish_transforms_updates": True,
+        'publish_planning_scene': True,
+        'publish_geometry_updates': True,
+        'publish_state_updates': True,
+        'publish_transforms_updates': True,
     }
 
     # -----------------------------
@@ -284,6 +277,8 @@ def generate_launch_description():
     ttable_to_marker2_tf = marker_tf("ttable_to_marker2_tf", "-0.175", "0.325", "0.", ttable_frame, "marker_2_frame")
     ttable_to_marker3_tf = marker_tf("ttable_to_marker3_tf", "-0.175", "-0.325", "0.", ttable_frame, "marker_3_frame")
 
+    sw_wall_tf = marker_tf("sw_wall_tf", "-0.5", "0.", "0.", table_frame, "sw_wall_frame")
+
     # -----------------------------
     # robot_state_publisher (robot + tables) (global /tf)
     # -----------------------------
@@ -298,7 +293,69 @@ def generate_launch_description():
             ("tf_static", "/tf_static"),
             ("robot_description", "/robot_description"),
         ],
-        output="screen",
+        # output="screen",
+        output="both",
+    )
+
+    ros2_controllers_path = os.path.join(
+        get_package_share_directory('franka_kistar_moveit_config'),
+        'config',
+        'fr3_ros_controllers.yaml',
+    )
+
+    # ros2_controllers_path = load_yaml(
+    #     'franka_kistar_moveit_config',
+    #     'config/fr3_ros_controllers.yaml',
+    # )
+
+    ros2_control_node = Node(
+        package='controller_manager',
+        executable='ros2_control_node',
+        namespace=namespace,
+        parameters=[robot_description, ros2_controllers_path],
+        remappings=[('joint_states', 'franka/joint_states')],
+        output={
+            # 'stdout': 'screen',
+            # 'stderr': 'screen',
+            "screen"
+        },
+        # on_exit=Shutdown(),
+    )
+
+    # Load controllers
+    load_controllers = []
+    for controller in ['fr3_arm_controller', 'joint_state_broadcaster']:
+        load_controllers.append(
+            ExecuteProcess(
+                cmd=[
+                    'ros2', 'run', 'controller_manager', 'spawner', controller,
+                    '--controller-manager-timeout', '60',
+                    '--controller-manager',
+                    PathJoinSubstitution([namespace, 'controller_manager'])
+                ],
+                output='screen'
+            )
+        )
+
+    joint_state_publisher = Node(
+        package='joint_state_publisher',
+        executable='joint_state_publisher',
+        name='joint_state_publisher',
+        namespace=namespace,
+        parameters=[
+            {'source_list': ['franka/joint_states'
+                            #  , 'fr3_gripper/joint_states'
+                             ], 'rate': 30}],
+    )
+    # /franka/arm_state/right
+
+    franka_robot_state_broadcaster = Node(
+        package='controller_manager',
+        executable='spawner',
+        namespace=namespace,
+        arguments=['franka_robot_state_broadcaster'],
+        output='screen',
+        condition=UnlessCondition(use_fake_hardware),
     )
 
     table_rsp = Node(
@@ -340,10 +397,9 @@ def generate_launch_description():
         parameters=[
             robot_description,
             robot_description_semantic,
-            robot_description_planning,
+            # robot_description_planning,
             kinematics_yaml,
             ompl_planning_pipeline_config,
-            totg_params,
             trajectory_execution,
             moveit_controllers,
             planning_scene_monitor_parameters,
@@ -380,7 +436,7 @@ def generate_launch_description():
         parameters=[
             robot_description,
             robot_description_semantic,
-            robot_description_planning,
+            # robot_description_planning,
             ompl_planning_pipeline_config,
             kinematics_yaml,
             {"use_sim_time": use_sim_time},
@@ -392,14 +448,14 @@ def generate_launch_description():
     # -----------------------------
     # Bridges (isaac / real)
     # -----------------------------
-    isaac_bridge_node = Node(
-        package="franka_kistar_isaac_moveit",
-        executable="isaac_moveit_bridge",
-        namespace=namespace,
-        name="fr3_arm_controller",
-        output="screen",
-        condition=IfCondition(PythonExpression(["'", bridge, "' == 'isaac'"])),
-    )
+    # isaac_bridge_node = Node(
+    #     package="franka_kistar_isaac_moveit",
+    #     executable="isaac_moveit_bridge",
+    #     namespace=namespace,
+    #     name="fr3_arm_controller",
+    #     output="screen",
+    #     condition=IfCondition(PythonExpression(["'", bridge, "' == 'isaac'"])),
+    # )
 
     real_bridge_node = Node(
         package="franka_kistar_isaac_moveit",
@@ -423,6 +479,7 @@ def generate_launch_description():
             "world_frame": LaunchConfiguration("world_frame"),
             "table_frame": LaunchConfiguration("table_frame"),
             "ttable_frame": LaunchConfiguration("ttable_frame"),
+            
             "table_size": LaunchConfiguration("table_size"),
             "ttable_size": LaunchConfiguration("ttable_size"),
         }],
@@ -432,8 +489,8 @@ def generate_launch_description():
     scene_boxes_delayed = TimerAction(period=3.0, actions=[scene_boxes_node])
 
     # -----------------------------
-    # Gripper (optional)
-    # -----------------------------
+    # # Gripper (optional)
+    # # -----------------------------
     gripper_launch_file = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([
             PathJoinSubstitution([FindPackageShare("franka_gripper"), "launch", "gripper.launch.py"])
@@ -501,33 +558,38 @@ def generate_launch_description():
     return LaunchDescription(
         launch_args
         + [
-            
             # TFs
             world_to_base_tf,
             base_to_fr3_tf,
             world_to_table_tf,
             world_to_ttable_tf,
             world_to_camera_tf,
-            ttable_to_marker0_tf,
-            ttable_to_marker1_tf,
-            ttable_to_marker2_tf,
-            ttable_to_marker3_tf,
+            # ttable_to_marker0_tf,
+            # ttable_to_marker1_tf,
+            # ttable_to_marker2_tf,
+            # ttable_to_marker3_tf,
+            sw_wall_tf,
+            scene_boxes_delayed,
+            
             
             # RSP
             table_rsp,
-            ttable_rsp,
-            robot_rsp,
+            ttable_rsp, 
+            robot_rsp, # robot_state_publisher
 
             # MoveIt
             run_move_group_node,
-            scene_boxes_delayed,
-
+            ros2_control_node,
+            joint_state_publisher,
+            franka_robot_state_broadcaster,
             # RViz
-            rviz_node,
 
             # Gripper + Bridges
             gripper_launch_file,
-            isaac_bridge_node,
-            real_bridge_node,
+            # isaac_bridge_node,
+            # real_bridge_node,
+            rviz_node,
+            
         ]
+        + load_controllers
     )
