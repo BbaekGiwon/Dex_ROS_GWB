@@ -107,7 +107,7 @@ def generate_launch_description():
 
     kinematics_yaml = load_yaml(
         'franka_kistar_moveit_config', 'config/kinematics.yaml')
-    joint_limits_yaml = load_yaml("franka_kistar_isaac_moveit_config", "config/joint_limits.yaml")
+    joint_limits_yaml = load_yaml("franka_kistar_moveit_config", "config/joint_limits.yaml")
     robot_description_planning = {
         "robot_description_planning": joint_limits_yaml
     }

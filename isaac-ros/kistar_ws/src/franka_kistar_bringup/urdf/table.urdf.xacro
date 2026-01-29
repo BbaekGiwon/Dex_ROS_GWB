@@ -40,7 +40,11 @@
 
   <link name="triangle_base">
     <visual>
+<<<<<<< HEAD
       <origin xyz="-0.185 -0.8 -0.75" rpy="0 0 0"/>
+=======
+      <origin xyz="-0.25 -0.8 -0.75" rpy="0 0 0"/>
+>>>>>>> cy
       <geometry>
         <mesh filename="package://franka_kistar_bringup/meshes/table/triangle_1.STL" scale="0.001 0.001 0.001"/>
       </geometry>
@@ -57,7 +61,11 @@
 
   <link name="triangle_base_2">
     <visual>
+<<<<<<< HEAD
       <origin xyz="-0.185 -0.8 -0.75" rpy="0 0 0"/>
+=======
+      <origin xyz="-0.25 -0.8 -0.75" rpy="0 0 0"/>
+>>>>>>> cy
       <geometry>
         <mesh filename="package://franka_kistar_bringup/meshes/table/triangle_2.STL" scale="0.001 0.001 0.001"/>
       </geometry>

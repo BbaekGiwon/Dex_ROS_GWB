@@ -62,17 +62,15 @@ class RealMoveItBridge(Node):
         self.declare_parameter("use_jerk_limited_tracker", True)
 
         # PD on measured (q, dq_est) to generate desired acceleration
-        self.declare_parameter("kp", 45.0)              # rad -> rad/s^2
-        self.declare_parameter("kd", 10.0)              # (rad/s error) -> rad/s^2
+        # self.declare_parameter("kp", 45.0)              # rad -> rad/s^2
+        self.declare_parameter("kp", 10.0)              # rad -> rad/s^2
+        self.declare_parameter("kd", 5.0)              # (rad/s error) -> rad/s^2
 
         self.declare_parameter("deadband_rad", 0.0002)
         self.declare_parameter("deadband_vel", 0.01)
         self.declare_parameter("settle_time", 0.15)      # extra time to settle (sec)
 
         # # limits (scalar or per-joint list)
-        # self.declare_parameter("max_accel", 2.5)        # rad/s^2  (recommend 2.5~3.0)
-        # self.declare_parameter("max_jerk", 12.0)        # rad/s^3  (recommend 15~25)
-
         self.declare_parameter("max_accel", [2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0])
         self.declare_parameter("use_vel_limit", True)
         self.declare_parameter("max_vel",   [2.0, 2.0, 2.0, 2.0, 3.0, 2.5, 3.0])  # 대충 70~80%로 시작
@@ -91,6 +89,7 @@ class RealMoveItBridge(Node):
 
         # dq estimation from positions (since FrankaArmState has no velocity)
         self.declare_parameter("dq_lpf_alpha", 0.93)     # 0.85~0.95 typical
+        # self.declare_parameter("dq_lpf_alpha", 0.96)     # 0.85~0.95 typical
 
         # dummy hand joint_states publish (to satisfy MoveIt complete state)
         self.declare_parameter("publish_dummy_hand_joints", False)
@@ -136,11 +135,19 @@ class RealMoveItBridge(Node):
         self.deadband_vel = float(self.get_parameter("deadband_vel").get_parameter_value().double_value)
         self.settle_time = float(self.get_parameter("settle_time").get_parameter_value().double_value)
 
-        self.a_max = _as_list(float(self.get_parameter("max_accel").get_parameter_value().double_value), self.nj)
-        self.j_max = _as_list(float(self.get_parameter("max_jerk").get_parameter_value().double_value), self.nj)
+        a_raw = self.get_parameter("max_accel").value   # float 또는 list
+        j_raw = self.get_parameter("max_jerk").value
+        v_raw = self.get_parameter("max_vel").value
+
+        self.a_max = _as_list(a_raw, self.nj)
+        self.j_max = _as_list(j_raw, self.nj)
+        self.v_max = _as_list(v_raw, self.nj)
+
+        # self.a_max = _as_list(float(self.get_parameter("max_accel").get_parameter_value().double_value), self.nj)
+        # self.j_max = _as_list(float(self.get_parameter("max_jerk").get_parameter_value().double_value), self.nj)
 
         self.use_vel_limit = bool(self.get_parameter("use_vel_limit").get_parameter_value().bool_value)
-        self.v_max = _as_list(float(self.get_parameter("max_vel").get_parameter_value().double_value), self.nj)
+        # self.v_max = _as_list(float(self.get_parameter("max_vel").get_parameter_value().double_value), self.nj)
 
         self.seed_from_state = bool(self.get_parameter("seed_from_state").get_parameter_value().bool_value)
         self.resync_err = float(self.get_parameter("resync_error_rad").get_parameter_value().double_value)
