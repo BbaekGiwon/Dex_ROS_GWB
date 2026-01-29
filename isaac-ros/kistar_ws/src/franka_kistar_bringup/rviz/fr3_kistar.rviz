@@ -4,11 +4,6 @@ Panels:
     Name: Displays
     Property Tree Widget:
       Expanded:
-<<<<<<< HEAD
-        - /RobotModel2
-      Splitter Ratio: 0.5
-    Tree Height: 353
-=======
         - /RobotModel1
         - /RobotModel2
         - /RobotModel3
@@ -16,7 +11,6 @@ Panels:
         - /MotionPlanning1/Planned Path1
       Splitter Ratio: 0.5
     Tree Height: 323
->>>>>>> cy
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -56,11 +50,8 @@ Visualization Manager:
         All Enabled: true
         base:
           Value: true
-<<<<<<< HEAD
-=======
         camera_link:
           Value: true
->>>>>>> cy
         fr3_link0:
           Value: true
         fr3_link0_accelerometer_bottom:
@@ -137,8 +128,6 @@ Visualization Manager:
           Value: true
         kistar_hand_thumb_sensor_1:
           Value: true
-<<<<<<< HEAD
-=======
         marker_0_frame:
           Value: true
         marker_1_frame:
@@ -147,7 +136,6 @@ Visualization Manager:
           Value: true
         marker_3_frame:
           Value: true
->>>>>>> cy
         middle_basemotor:
           Value: true
         middle_link_0:
@@ -186,8 +174,6 @@ Visualization Manager:
           Value: true
         thumb_tip:
           Value: true
-<<<<<<< HEAD
-=======
         triangle_base:
           Value: true
         triangle_base_2:
@@ -196,7 +182,6 @@ Visualization Manager:
           Value: true
         ttable_top:
           Value: true
->>>>>>> cy
         world:
           Value: true
       Marker Scale: 0.20000000298023224
@@ -289,11 +274,6 @@ Visualization Manager:
                                               {}
                                             thumb_tip:
                                               {}
-<<<<<<< HEAD
-          table_link:
-            table_top:
-              {}
-=======
           camera_link:
             {}
           table_link:
@@ -314,7 +294,6 @@ Visualization Manager:
               {}
             ttable_top:
               {}
->>>>>>> cy
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -635,8 +614,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
-<<<<<<< HEAD
-=======
         triangle_base:
           Alpha: 1
           Show Axes: false
@@ -647,7 +624,6 @@ Visualization Manager:
           Show Axes: false
           Show Trail: false
           Value: true
->>>>>>> cy
       Mass Properties:
         Inertia: false
         Mass: false
@@ -656,8 +632,6 @@ Visualization Manager:
       Update Interval: 0
       Value: true
       Visual Enabled: true
-<<<<<<< HEAD
-=======
     - Alpha: 1
       Class: rviz_default_plugins/RobotModel
       Collision Enabled: false
@@ -1305,7 +1279,6 @@ Visualization Manager:
         Show Robot Visual: true
       Value: true
       Velocity_Scaling_Factor: 0.05
->>>>>>> cy
   Enabled: true
   Global Options:
     Background Color: 48; 48; 48
@@ -1344,43 +1317,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-<<<<<<< HEAD
-      Distance: 2.5
-=======
       Distance: 3.902153730392456
->>>>>>> cy
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-<<<<<<< HEAD
-        X: 0.3527641296386719
-        Y: -0.31989026069641113
-        Z: -0.029833244159817696
-      Focal Shape Fixed Size: true
-=======
         X: 0
         Y: 0
         Z: 0
       Focal Shape Fixed Size: false
->>>>>>> cy
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-<<<<<<< HEAD
-      Pitch: 0.5
-      Target Frame: <Fixed Frame>
-      Value: Orbit (rviz_default_plugins)
-      Yaw: 0.800000011920929
-=======
       Pitch: 0.2203979790210724
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz_default_plugins)
       Yaw: 1.6004060506820679
->>>>>>> cy
     Saved: ~
 Window Geometry:
   Displays:
@@ -1388,15 +1343,11 @@ Window Geometry:
   Height: 1376
   Hide Left Dock: false
   Hide Right Dock: false
-<<<<<<< HEAD
-  QMainWindow State: 000000ff00000000fd0000000100000000000001cb00000506fc0200000004fb000000100044006900730070006c006100790073010000003d000001e4000000c900fffffffb0000001200530065006c0065006300740069006f006e0100000227000000eb0000005c00fffffffb0000001e0054006f006f006c002000500072006f00700065007200740069006500730100000318000000eb0000005c00fffffffb0000000a0056006900650077007301000004090000013a000000a400ffffff000007e90000050600000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
-=======
   MotionPlanning:
     collapsed: false
   MotionPlanning - Trajectory Slider:
     collapsed: false
   QMainWindow State: 000000ff00000000fd0000000100000000000001f300000506fc0200000007fb000000100044006900730070006c006100790073010000003d000001c6000000c900fffffffb0000001200530065006c0065006300740069006f006e01000002090000005c0000005c00fffffffb0000001e0054006f006f006c002000500072006f0070006500720074006900650073010000026b0000005c0000005c00fffffffb0000000a0056006900650077007301000002cd000000a4000000a400fffffffb000000280020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000000000000000fb00000044004d006f00740069006f006e0050006c0061006e006e0069006e00670020002d0020005400720061006a006500630074006f0072007900200053006c00690064006500720000000000ffffffff0000001600000016fb0000001c004d006f00740069006f006e0050006c0061006e006e0069006e00670100000377000001cc0000017d00ffffff000007c10000050600000004000000040000000800000008fc0000000100000002000000010000000a0054006f006f006c00730100000000ffffffff0000000000000000
->>>>>>> cy
   Selection:
     collapsed: false
   Tool Properties:
