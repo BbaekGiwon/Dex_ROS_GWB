@@ -8,7 +8,17 @@
 
 
 ### Submodule for dex_soldering project! 
-![](./fig/real_moveit.gif)
+<table>
+  <tr>
+    <td align="center">
+      <img src="./fig/sim_moveit.gif" width="400"/>
+    </td>
+    <td align="center">
+      <img src="./fig/real_moveit.gif" width="400"/>
+    </td>
+  </tr>
+</table>
+
 
 **Dex ROS** is an ROS2 framework for robotic hand learning using multimodal haptic sensing to accelerate dexterous manipulation with intrinsic properties. Particulary, this work specialized at tool oriented manipulation such as soldering. It builds on [NVIDIA Isaac Sim](https://docs.omniverse.nvidia.com/isaacsim/latest/overview.html) and [NVIDIA IsaacLab](https://github.com/isaac-sim/IsaacLab/) to take advantage of a variety of learning approaches (such as RL, learning from demonstration) and fast and accurate simulation.
 
@@ -32,6 +42,12 @@ cd ~/isaac_ws/dex_soldering/dex_ros/isaac-ros/kistar_ws
 colcon build --symlink-install
 bash ./install/local_setup.sh
 ```
+### Installation (Other Packages)
+```shell
+# First, install ROS2 Humble!
+sudo apt install ros-humble-realsense2*
+```
+
 
 ## TODO! 
 I will irregularly update the development progress in [Link](https://cold-young.github.io/projects/kist-soldering/). (only devleopment status! not detail information)
@@ -58,10 +74,7 @@ I will irregularly update the development progress in [Link](https://cold-young.
 - [ ] Check CUI version launch 
 
 ___
-
-![](./fig/real_moveit.gif)
-
-
+## Citation
 ```
 @disc{ahn2025Dexros,
    author={Ahn, Chanyoung},

@@ -86,7 +86,7 @@ def generate_launch_description():
     ttable_y = LaunchConfiguration("ttable_y")
     ttable_z = LaunchConfiguration("ttable_z")
 
-    camera_frame = LaunchConfiguration("camera_frame")
+    front_camera_link = LaunchConfiguration("front_camera_link")
     profile_frame = LaunchConfiguration("profile_frame")
 
     # -----------------------------
@@ -348,31 +348,65 @@ def generate_launch_description():
         output="screen",
     )
 
-    world_to_camera_tf = Node(
+
+    # -----------------------------
+    # Camera TF
+    # ----------------------------
+
+    front_camera_tf = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
-        name="world_to_camera_tf",
+        name="front_camera_tf",
         arguments=[
             "--x",
-            table_x,
+            "0.12",
             "--y",
-            table_y,
+            "0.02",
             "--z",
-            "0.9",
+            # "0.9",
+            "0.88",
             "--roll",
             "0.",
             "--pitch",
-            "0.",
+            "0.8727",
             "--yaw",
             "0.",
             "--frame-id",
             world_frame,
             "--child-frame-id",
-            camera_frame,
+            front_camera_link,
         ],
         remappings=[("tf", "/tf"), ("tf_static", "/tf_static")],
         output="screen",
     )
+
+
+    # right_camera_tf = Node(
+    #     package="tf2_ros",
+    #     executable="static_transform_publisher",
+    #     name="right_camera_tf",
+    #     arguments=[
+    #         "--x",
+    #         table_x,
+    #         "--y",
+    #         table_y,
+    #         "--z",
+    #         "0.9",
+    #         "--roll",
+    #         "0.",
+    #         "--pitch",
+    #         "0.",
+    #         "--yaw",
+    #         "0.",
+    #         "--frame-id",
+    #         world_frame,
+    #         "--child-frame-id",
+    #         right_camera_link,
+    #     ],
+    #     remappings=[("tf", "/tf"), ("tf_static", "/tf_static")],
+    #     output="screen",
+    # )
+
 
     # AprilTag marker TFs (ttable -> marker_i)
     def marker_tf(name, x, y, z, parent, child):
@@ -446,11 +480,6 @@ def generate_launch_description():
         "config",
         "fr3_ros_controllers.yaml",
     )
-
-    # ros2_controllers_path = load_yaml(
-    #     'franka_kistar_moveit_config',
-    #     'config/fr3_ros_controllers.yaml',
-    # )
 
     ros2_control_node = Node(
         package="controller_manager",
@@ -547,7 +576,7 @@ def generate_launch_description():
         ],
         output="screen",
     )
-
+    
     # -----------------------------
     # MoveIt move_group
     # -----------------------------
@@ -612,30 +641,21 @@ def generate_launch_description():
     # -----------------------------
     # Bridges (isaac / real)
     # -----------------------------
-    # isaac_bridge_node = Node(
+    # real_bridge_node = Node(
     #     package="franka_kistar_isaac_moveit",
-    #     executable="isaac_moveit_bridge",
+    #     executable="real_moveit_bridge",
     #     namespace=namespace,
     #     name="fr3_arm_controller",
     #     output="screen",
-    #     condition=IfCondition(PythonExpression(["'", bridge, "' == 'isaac'"])),
+    #     parameters=[
+    #         {
+    #             "arm_side": arm_side,
+    #             "command_rate_hz": command_rate_hz,
+    #             "publish_dummy_hand_joints": True,  # 너 코드 유지
+    #         }
+    #     ],
+    #     condition=IfCondition(PythonExpression(["'", bridge, "' == 'real'"])),
     # )
-
-    real_bridge_node = Node(
-        package="franka_kistar_isaac_moveit",
-        executable="real_moveit_bridge",
-        namespace=namespace,
-        name="fr3_arm_controller",
-        output="screen",
-        parameters=[
-            {
-                "arm_side": arm_side,
-                "command_rate_hz": command_rate_hz,
-                "publish_dummy_hand_joints": True,  # 너 코드 유지
-            }
-        ],
-        condition=IfCondition(PythonExpression(["'", bridge, "' == 'real'"])),
-    )
 
     scene_boxes_node = Node(
         package="franka_kistar_bringup",
@@ -657,7 +677,7 @@ def generate_launch_description():
     scene_boxes_delayed = TimerAction(period=3.0, actions=[scene_boxes_node])
 
     # -----------------------------
-    # # Gripper (optional)
+    # # Gripper / Sensor (optional)
     # # -----------------------------
     gripper_launch_file = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -674,6 +694,14 @@ def generate_launch_description():
         }.items(),
         condition=IfCondition(load_gripper),
     )
+
+    realsense_multi = IncludeLaunchDescription(
+        PythonLaunchDescriptionSource(
+            PathJoinSubstitution([FindPackageShare("franka_kistar_bringup"), 
+                                  "launch", "realsense_multi.launch.py"])
+        )
+    )
+
 
     # -----------------------------
     # Launch args
@@ -727,7 +755,7 @@ def generate_launch_description():
         DeclareLaunchArgument("table_yaw", default_value="0.0"),
         DeclareLaunchArgument("table_size", default_value="[1.2, 1.8, 0.05]"),
         DeclareLaunchArgument("ttable_size", default_value="[0.5, 0.8, 0.03]"),
-        DeclareLaunchArgument("camera_frame", default_value="camera_link"),
+        DeclareLaunchArgument("front_camera_link", default_value="front_camera_link"),
         DeclareLaunchArgument("profile_frame", default_value="profile_frame"),
     ]
 
@@ -739,8 +767,9 @@ def generate_launch_description():
             base_to_fr3_tf,
             world_to_table_tf,
             world_to_ttable_tf,
-            world_to_camera_tf,
             profile_tf,
+            
+            front_camera_tf,
             # ttable_to_marker0_tf,
             # ttable_to_marker1_tf,
             # ttable_to_marker2_tf,
@@ -759,6 +788,9 @@ def generate_launch_description():
             # RViz
             # Gripper + Bridges
             gripper_launch_file,
+            
+            # Camera
+            realsense_multi,
             # isaac_bridge_node,
             # real_bridge_node,
             rviz_node,
