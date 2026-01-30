@@ -2,12 +2,22 @@
 ![](../../fig/real_moveit.gif)
 ```shell
 rs
-ros2 launch franka_kistar_moveit_config moveit.launch.py bridge:=real arm_side:=right robot_ip:=10.10.0.7 use_fake_hardware:=false
-# ros2 launch franka_kistar_bringup fr3_kistar.launch.py
 
-# With TF
-ros2 launch franka_kistar_bringup fr3_kistar_moveit_bringup.launch.py   bridge:=real robot_ip:=172.16.0.3 use_rviz:=true rviz_source:=kistar
+# Ongoing.. (previous)
+ros2 launch franka_kistar_moveit_config moveit.launch.py bridge:=real arm_side:=right robot_ip:=10.10.0.7 use_fake_hardware:=false
+
+# Updated Command (2025-01-30)
+ros2 launch franka_kistar_bringup fr3_kistar_moveit_real.launch.py robot_ip:=172.16.0.1 use_rviz:=true 
+
+# Run w/o real robot
+ros2 launch franka_kistar_bringup fr3_kistar_moveit_real.launch.py use_fake_hardware:=true use_rviz:=true 
 ```
+
+# Activate Realsense Camera
+```shell
+ ros2 launch realsense2_camera rs_launch.py pointcloud.enable:=true
+```
+
 
 ## Troubleshooting
 ```shell
