@@ -18,6 +18,8 @@ class PlanningSceneStaticBoxes(Node):
         self.declare_parameter("table_frame", "table_link")
         self.declare_parameter("ttable_frame", "ttable_link")
         self.declare_parameter("sw_frame", "sw_wall_frame")
+        self.declare_parameter("profile_frame", "profile_frame")
+        
         self.declare_parameter("table_size", [1.0, 0.8, 0.05])
         self.declare_parameter("ttable_size", [0.6, 0.6, 0.05])
         self.declare_parameter("sw_wall_size", [0.1, 2., 2.])
@@ -32,6 +34,7 @@ class PlanningSceneStaticBoxes(Node):
         
         self.sw_wall_frame = self.get_parameter("sw_frame").value
         self.sw_wall_size = self.get_parameter("sw_wall_size").value
+        self.profile_frame = self.get_parameter("profile_frame").value
         self.timeout_sec = float(self.get_parameter("timeout_sec").value)
 
         self.tf_buffer = tf2_ros.Buffer()
@@ -79,14 +82,16 @@ class PlanningSceneStaticBoxes(Node):
             table_pose = self._lookup_pose(self.table_frame)
             ttable_pose = self._lookup_pose(self.ttable_frame)
             sw_wall_pose = self._lookup_pose(self.sw_wall_frame)
-            
+            profile_pose = self._lookup_pose(self.profile_frame)
+
             scene = PlanningScene()
             scene.is_diff = True
             scene.world.collision_objects.append(self._make_box("table", table_pose, self.table_size))
             scene.world.collision_objects.append(self._make_box("ttable", ttable_pose, self.ttable_size))
             
             # Table Camera
-            scene.world.collision_objects.append(self._make_box("camera", table_pose, [0.06, 0.06, 2.0]))
+            scene.world.collision_objects.append(self._make_box("camera", profile_pose, [0.22, 0.15, 2.0]))
+            # scene.world.collision_objects.append(self._make_box("camera", [0.05, 0.032, 0.], [0.22, 0.15, 2.0]))
 
             # SW Wall
             scene.world.collision_objects.append(self._make_box("sw_wall", sw_wall_pose, self.sw_wall_size))

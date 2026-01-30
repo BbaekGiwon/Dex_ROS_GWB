@@ -76,6 +76,8 @@ def generate_launch_description():
     ttable_z = LaunchConfiguration("ttable_z")
 
     camera_frame = LaunchConfiguration("camera_frame")
+    profile_frame = LaunchConfiguration("profile_frame")
+    
 
     # -----------------------------
     # Robot Description (URDF/xacro)
@@ -242,6 +244,20 @@ def generate_launch_description():
         output="screen",
     )
 
+    profile_tf = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="profile_tf",
+        arguments=[
+            "--x", "0.025", "--y", "0.032", "--z", "0.0",
+            "--roll", "0.", "--pitch", "0.", "--yaw", "0.",
+            "--frame-id", world_frame,
+            "--child-frame-id", profile_frame,
+        ],
+        remappings=[("tf", "/tf"), ("tf_static", "/tf_static")],
+        output="screen",
+        )
+        
     world_to_camera_tf = Node(
         package="tf2_ros",
         executable="static_transform_publisher",
@@ -479,7 +495,7 @@ def generate_launch_description():
             "world_frame": LaunchConfiguration("world_frame"),
             "table_frame": LaunchConfiguration("table_frame"),
             "ttable_frame": LaunchConfiguration("ttable_frame"),
-            
+            "profile_frame": LaunchConfiguration("profile_frame"),
             "table_size": LaunchConfiguration("table_size"),
             "ttable_size": LaunchConfiguration("ttable_size"),
         }],
@@ -540,6 +556,7 @@ def generate_launch_description():
         # table pose
         DeclareLaunchArgument("table_frame", default_value="table_link"),
         DeclareLaunchArgument("table_x", default_value="0.0"),
+        # DeclareLaunchArgument("table_x", default_value="0.1"),
         DeclareLaunchArgument("table_y", default_value="0.032"),
         DeclareLaunchArgument("table_z", default_value="0.0"),
         DeclareLaunchArgument("ttable_frame", default_value="ttable_link"),
@@ -553,6 +570,8 @@ def generate_launch_description():
         DeclareLaunchArgument("table_size", default_value="[1.2, 1.8, 0.05]"),
         DeclareLaunchArgument("ttable_size", default_value="[0.5, 0.8, 0.03]"),
         DeclareLaunchArgument("camera_frame", default_value="camera_link"),
+        DeclareLaunchArgument("profile_frame", default_value="profile_frame"),
+        
     ]
 
     return LaunchDescription(
@@ -564,6 +583,7 @@ def generate_launch_description():
             world_to_table_tf,
             world_to_ttable_tf,
             world_to_camera_tf,
+            profile_tf,
             # ttable_to_marker0_tf,
             # ttable_to_marker1_tf,
             # ttable_to_marker2_tf,
