@@ -21,6 +21,7 @@ from launch_ros.substitutions import FindPackageShare
 
 import yaml
 
+
 def load_yaml(package_name, file_path):
     package_path = get_package_share_directory(package_name)
     absolute_file_path = os.path.join(package_path, file_path)
@@ -107,10 +108,10 @@ def generate_launch_description():
     }
 
     kinematics_yaml = load_yaml("franka_kistar_moveit_config", "config/kinematics.yaml")
-    joint_limits_yaml = load_yaml("franka_kistar_moveit_config", "config/joint_limits.yaml")
-    robot_description_planning = {
-        "robot_description_planning": joint_limits_yaml
-    }
+    joint_limits_yaml = load_yaml(
+        "franka_kistar_moveit_config", "config/joint_limits.yaml"
+    )
+    robot_description_planning = {"robot_description_planning": joint_limits_yaml}
     # Planning Functionality
     ompl_planning_pipeline_config = {
         "move_group": {
@@ -130,7 +131,9 @@ def generate_launch_description():
     ompl_planning_pipeline_config["move_group"].update(ompl_planning_yaml)
 
     totg_params = {
-        "time_optimal_trajectory_generation.resample_dt": ParameterValue(resample_dt, value_type=float),
+        "time_optimal_trajectory_generation.resample_dt": ParameterValue(
+            resample_dt, value_type=float
+        ),
         "time_optimal_trajectory_generation.path_tolerance": 0.1,
         "time_optimal_trajectory_generation.min_angle_change": 0.001,
     }
@@ -171,7 +174,7 @@ def generate_launch_description():
             kinematics_yaml,
             # joint_limits_yaml,
             ompl_planning_pipeline_config,
-            totg_params,  
+            totg_params,
             trajectory_execution,
             moveit_controllers,
             planning_scene_monitor_parameters,
@@ -193,7 +196,7 @@ def generate_launch_description():
         parameters=[
             robot_description,
             robot_description_semantic,
-            robot_description_planning, 
+            robot_description_planning,
             ompl_planning_pipeline_config,
             kinematics_yaml,
             # joint_limits_yaml,
@@ -225,10 +228,13 @@ def generate_launch_description():
         namespace=namespace,
         name="fr3_arm_controller",
         output="screen",
-        parameters=[{"arm_side": arm_side, 
-                     "command_rate_hz": command_rate_hz,
-                     "publish_dummy_hand_joints": True,   #TODO
-                     }],
+        parameters=[
+            {
+                "arm_side": arm_side,
+                "command_rate_hz": command_rate_hz,
+                "publish_dummy_hand_joints": True,  # TODO
+            }
+        ],
         condition=IfCondition(PythonExpression(["'", bridge, "' == 'real'"])),
     )
 
@@ -315,7 +321,7 @@ def generate_launch_description():
             bridge_arg,
             arm_side_arg,
             command_rate_hz_arg,
-            resample_dt_arg,     
+            resample_dt_arg,
             load_gripper_arg,
             ee_id_arg,
             use_fake_hardware_arg,

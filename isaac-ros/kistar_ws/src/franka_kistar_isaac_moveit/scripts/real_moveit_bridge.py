@@ -50,11 +50,21 @@ class RealMoveItBridge(Node):
         self.declare_parameter("arm_state_topic", "")
         self.declare_parameter("arm_target_topic", "")
         self.declare_parameter("joint_states_topic", "joint_states")
-        self.declare_parameter("traj_action_name", "/fr3_arm_controller/follow_joint_trajectory")
+        self.declare_parameter(
+            "traj_action_name", "/fr3_arm_controller/follow_joint_trajectory"
+        )
         self.declare_parameter("command_rate_hz", 100.0)
         self.declare_parameter(
             "joint_names",
-            ["fr3_joint1", "fr3_joint2", "fr3_joint3", "fr3_joint4", "fr3_joint5", "fr3_joint6", "fr3_joint7"],
+            [
+                "fr3_joint1",
+                "fr3_joint2",
+                "fr3_joint3",
+                "fr3_joint4",
+                "fr3_joint5",
+                "fr3_joint6",
+                "fr3_joint7",
+            ],
         )
         self.declare_parameter("min_dt", 0.002)
 
@@ -63,18 +73,22 @@ class RealMoveItBridge(Node):
 
         # PD on measured (q, dq_est) to generate desired acceleration
         # self.declare_parameter("kp", 45.0)              # rad -> rad/s^2
-        self.declare_parameter("kp", 10.0)              # rad -> rad/s^2
-        self.declare_parameter("kd", 5.0)              # (rad/s error) -> rad/s^2
+        self.declare_parameter("kp", 10.0)  # rad -> rad/s^2
+        self.declare_parameter("kd", 5.0)  # (rad/s error) -> rad/s^2
 
         self.declare_parameter("deadband_rad", 0.0002)
         self.declare_parameter("deadband_vel", 0.01)
-        self.declare_parameter("settle_time", 0.15)      # extra time to settle (sec)
+        self.declare_parameter("settle_time", 0.15)  # extra time to settle (sec)
 
         # # limits (scalar or per-joint list)
         self.declare_parameter("max_accel", [2.0, 2.0, 2.0, 2.0, 3.0, 3.0, 3.0])
         self.declare_parameter("use_vel_limit", True)
-        self.declare_parameter("max_vel",   [2.0, 2.0, 2.0, 2.0, 3.0, 2.5, 3.0])  # 대충 70~80%로 시작
-        self.declare_parameter("max_jerk",  12.0)  # 15 넘기면 너는 흔들린다 했으니 10~12 추천
+        self.declare_parameter(
+            "max_vel", [2.0, 2.0, 2.0, 2.0, 3.0, 2.5, 3.0]
+        )  # 대충 70~80%로 시작
+        self.declare_parameter(
+            "max_jerk", 12.0
+        )  # 15 넘기면 너는 흔들린다 했으니 10~12 추천
 
         # # optional velocity limit (helps prevent aggressive catch-up)
         # self.declare_parameter("use_vel_limit", True)
@@ -84,58 +98,112 @@ class RealMoveItBridge(Node):
         self.declare_parameter("seed_from_state", True)
 
         # anti-windup / resync (if internal state drifts too far from measured)
-        self.declare_parameter("resync_error_rad", 0.35)  # if |q_cmd-q_meas| exceeds -> snap back
-        self.declare_parameter("resync_dq_to_meas", True) # when resync, also zero dq_cmd
+        self.declare_parameter(
+            "resync_error_rad", 0.35
+        )  # if |q_cmd-q_meas| exceeds -> snap back
+        self.declare_parameter(
+            "resync_dq_to_meas", True
+        )  # when resync, also zero dq_cmd
 
         # dq estimation from positions (since FrankaArmState has no velocity)
-        self.declare_parameter("dq_lpf_alpha", 0.93)     # 0.85~0.95 typical
+        self.declare_parameter("dq_lpf_alpha", 0.93)  # 0.85~0.95 typical
         # self.declare_parameter("dq_lpf_alpha", 0.96)     # 0.85~0.95 typical
 
         # dummy hand joint_states publish (to satisfy MoveIt complete state)
         self.declare_parameter("publish_dummy_hand_joints", False)
-        self.declare_parameter("dummy_hand_joint_names", [
-            "index_joint_0", "index_joint_1", "index_joint_2", "index_joint_3",
-            "middle_joint_0", "middle_joint_1", "middle_joint_2", "middle_joint_3",
-            "ring_joint_0", "ring_joint_1", "ring_joint_2", "ring_joint_3",
-            "thumb_joint_0", "thumb_joint_1", "thumb_joint_2", "thumb_joint_3",
-        ])
+        self.declare_parameter(
+            "dummy_hand_joint_names",
+            [
+                "index_joint_0",
+                "index_joint_1",
+                "index_joint_2",
+                "index_joint_3",
+                "middle_joint_0",
+                "middle_joint_1",
+                "middle_joint_2",
+                "middle_joint_3",
+                "ring_joint_0",
+                "ring_joint_1",
+                "ring_joint_2",
+                "ring_joint_3",
+                "thumb_joint_0",
+                "thumb_joint_1",
+                "thumb_joint_2",
+                "thumb_joint_3",
+            ],
+        )
         self.declare_parameter("dummy_hand_joint_value", 0.0)
 
         # ------------------- Parse params -------------------
         arm_side = self.get_parameter("arm_side").get_parameter_value().string_value
         if arm_side not in ("left", "right"):
-            self.get_logger().warn(f"Invalid arm_side '{arm_side}', falling back to 'right'.")
+            self.get_logger().warn(
+                f"Invalid arm_side '{arm_side}', falling back to 'right'."
+            )
             arm_side = "right"
         self.arm_id = 0 if arm_side == "right" else 1
 
-        arm_state_topic = self.get_parameter("arm_state_topic").get_parameter_value().string_value
-        arm_target_topic = self.get_parameter("arm_target_topic").get_parameter_value().string_value
-        joint_states_topic = self.get_parameter("joint_states_topic").get_parameter_value().string_value
-        traj_action_name = self.get_parameter("traj_action_name").get_parameter_value().string_value
+        arm_state_topic = (
+            self.get_parameter("arm_state_topic").get_parameter_value().string_value
+        )
+        arm_target_topic = (
+            self.get_parameter("arm_target_topic").get_parameter_value().string_value
+        )
+        joint_states_topic = (
+            self.get_parameter("joint_states_topic").get_parameter_value().string_value
+        )
+        traj_action_name = (
+            self.get_parameter("traj_action_name").get_parameter_value().string_value
+        )
 
         if not arm_state_topic:
             arm_state_topic = f"/franka/arm_state/{arm_side}"
         if not arm_target_topic:
             arm_target_topic = f"/franka/arm_target/{arm_side}"
 
-        self.joint_names = list(self.get_parameter("joint_names").get_parameter_value().string_array_value)
+        self.joint_names = list(
+            self.get_parameter("joint_names").get_parameter_value().string_array_value
+        )
         if not self.joint_names:
-            self.joint_names = ["fr3_joint1", "fr3_joint2", "fr3_joint3", "fr3_joint4", "fr3_joint5", "fr3_joint6", "fr3_joint7"]
+            self.joint_names = [
+                "fr3_joint1",
+                "fr3_joint2",
+                "fr3_joint3",
+                "fr3_joint4",
+                "fr3_joint5",
+                "fr3_joint6",
+                "fr3_joint7",
+            ]
         self.nj = len(self.joint_names)
 
-        self.command_rate_hz = float(self.get_parameter("command_rate_hz").get_parameter_value().double_value)
+        self.command_rate_hz = float(
+            self.get_parameter("command_rate_hz").get_parameter_value().double_value
+        )
         self.command_rate_hz = max(self.command_rate_hz, 1.0)
-        self.min_dt = max(float(self.get_parameter("min_dt").get_parameter_value().double_value), 0.001)
+        self.min_dt = max(
+            float(self.get_parameter("min_dt").get_parameter_value().double_value),
+            0.001,
+        )
 
-        self.use_tracker = bool(self.get_parameter("use_jerk_limited_tracker").get_parameter_value().bool_value)
+        self.use_tracker = bool(
+            self.get_parameter("use_jerk_limited_tracker")
+            .get_parameter_value()
+            .bool_value
+        )
         self.kp = float(self.get_parameter("kp").get_parameter_value().double_value)
         self.kd = float(self.get_parameter("kd").get_parameter_value().double_value)
 
-        self.deadband = float(self.get_parameter("deadband_rad").get_parameter_value().double_value)
-        self.deadband_vel = float(self.get_parameter("deadband_vel").get_parameter_value().double_value)
-        self.settle_time = float(self.get_parameter("settle_time").get_parameter_value().double_value)
+        self.deadband = float(
+            self.get_parameter("deadband_rad").get_parameter_value().double_value
+        )
+        self.deadband_vel = float(
+            self.get_parameter("deadband_vel").get_parameter_value().double_value
+        )
+        self.settle_time = float(
+            self.get_parameter("settle_time").get_parameter_value().double_value
+        )
 
-        a_raw = self.get_parameter("max_accel").value   # float 또는 list
+        a_raw = self.get_parameter("max_accel").value  # float 또는 list
         j_raw = self.get_parameter("max_jerk").value
         v_raw = self.get_parameter("max_vel").value
 
@@ -146,19 +214,41 @@ class RealMoveItBridge(Node):
         # self.a_max = _as_list(float(self.get_parameter("max_accel").get_parameter_value().double_value), self.nj)
         # self.j_max = _as_list(float(self.get_parameter("max_jerk").get_parameter_value().double_value), self.nj)
 
-        self.use_vel_limit = bool(self.get_parameter("use_vel_limit").get_parameter_value().bool_value)
+        self.use_vel_limit = bool(
+            self.get_parameter("use_vel_limit").get_parameter_value().bool_value
+        )
         # self.v_max = _as_list(float(self.get_parameter("max_vel").get_parameter_value().double_value), self.nj)
 
-        self.seed_from_state = bool(self.get_parameter("seed_from_state").get_parameter_value().bool_value)
-        self.resync_err = float(self.get_parameter("resync_error_rad").get_parameter_value().double_value)
-        self.resync_dq = bool(self.get_parameter("resync_dq_to_meas").get_parameter_value().bool_value)
+        self.seed_from_state = bool(
+            self.get_parameter("seed_from_state").get_parameter_value().bool_value
+        )
+        self.resync_err = float(
+            self.get_parameter("resync_error_rad").get_parameter_value().double_value
+        )
+        self.resync_dq = bool(
+            self.get_parameter("resync_dq_to_meas").get_parameter_value().bool_value
+        )
 
-        self.dq_alpha = float(self.get_parameter("dq_lpf_alpha").get_parameter_value().double_value)
+        self.dq_alpha = float(
+            self.get_parameter("dq_lpf_alpha").get_parameter_value().double_value
+        )
         self.dq_alpha = clamp(self.dq_alpha, 0.0, 0.999)
 
-        self.publish_dummy_hand = bool(self.get_parameter("publish_dummy_hand_joints").get_parameter_value().bool_value)
-        self.dummy_names = list(self.get_parameter("dummy_hand_joint_names").get_parameter_value().string_array_value)
-        self.dummy_value = float(self.get_parameter("dummy_hand_joint_value").get_parameter_value().double_value)
+        self.publish_dummy_hand = bool(
+            self.get_parameter("publish_dummy_hand_joints")
+            .get_parameter_value()
+            .bool_value
+        )
+        self.dummy_names = list(
+            self.get_parameter("dummy_hand_joint_names")
+            .get_parameter_value()
+            .string_array_value
+        )
+        self.dummy_value = float(
+            self.get_parameter("dummy_hand_joint_value")
+            .get_parameter_value()
+            .double_value
+        )
 
         self.system_clock = Clock(clock_type=ClockType.SYSTEM_TIME)
 
@@ -173,13 +263,18 @@ class RealMoveItBridge(Node):
         self.js_pub = self.create_publisher(JointState, joint_states_topic, 10)
 
         self.state_sub = self.create_subscription(
-            FrankaArmState, arm_state_topic, self._arm_state_cb,
-            qos_profile_sensor_data, callback_group=self.cb_group
+            FrankaArmState,
+            arm_state_topic,
+            self._arm_state_cb,
+            qos_profile_sensor_data,
+            callback_group=self.cb_group,
         )
         self.cmd_pub = self.create_publisher(FrankaArmTarget, arm_target_topic, 10)
 
         self.action_server = ActionServer(
-            self, FollowJointTrajectory, traj_action_name,
+            self,
+            FollowJointTrajectory,
+            traj_action_name,
             execute_callback=self.execute_callback,
             goal_callback=self.goal_callback,
             cancel_callback=self.cancel_callback,
@@ -207,7 +302,10 @@ class RealMoveItBridge(Node):
                     self._dq_est = dq_raw
                 else:
                     a = self.dq_alpha
-                    self._dq_est = [a * self._dq_est[i] + (1.0 - a) * dq_raw[i] for i in range(self.nj)]
+                    self._dq_est = [
+                        a * self._dq_est[i] + (1.0 - a) * dq_raw[i]
+                        for i in range(self.nj)
+                    ]
 
         self._last_q_meas_prev = self._last_q_meas
         self._last_q_meas = q
@@ -235,7 +333,9 @@ class RealMoveItBridge(Node):
 
     def goal_callback(self, goal_request):
         traj = goal_request.trajectory
-        self.get_logger().info(f"[Action] Goal received: {len(traj.points)} points, joints={list(traj.joint_names)}")
+        self.get_logger().info(
+            f"[Action] Goal received: {len(traj.points)} points, joints={list(traj.joint_names)}"
+        )
         return GoalResponse.ACCEPT
 
     def cancel_callback(self, goal_handle):
@@ -243,7 +343,9 @@ class RealMoveItBridge(Node):
         return CancelResponse.ACCEPT
 
     # ------------------- Trajectory utils -------------------
-    def _prep_trajectory(self, traj) -> Tuple[List[float], List[List[float]], List[Optional[List[float]]]]:
+    def _prep_trajectory(
+        self, traj
+    ) -> Tuple[List[float], List[List[float]], List[Optional[List[float]]]]:
         n = len(traj.points)
         goal_names = list(traj.joint_names)
 
@@ -251,9 +353,13 @@ class RealMoveItBridge(Node):
         if goal_names and self.joint_names and goal_names != self.joint_names:
             try:
                 order_idx = [goal_names.index(name) for name in self.joint_names]
-                self.get_logger().warn("Joint order differs; reordering to match expected joint_names.")
+                self.get_logger().warn(
+                    "Joint order differs; reordering to match expected joint_names."
+                )
             except ValueError:
-                self.get_logger().warn("Joint name mismatch; using goal order without reordering.")
+                self.get_logger().warn(
+                    "Joint name mismatch; using goal order without reordering."
+                )
                 order_idx = None
 
         times: List[float] = []
@@ -317,9 +423,9 @@ class RealMoveItBridge(Node):
 
             # derivative of Hermite curve
             dh00 = (6.0 * s2 - 6.0 * s) / dt
-            dh10 = (3.0 * s2 - 4.0 * s + 1.0)
+            dh10 = 3.0 * s2 - 4.0 * s + 1.0
             dh01 = (-6.0 * s2 + 6.0 * s) / dt
-            dh11 = (3.0 * s2 - 2.0 * s)
+            dh11 = 3.0 * s2 - 2.0 * s
 
             v_ref = [
                 dh00 * q0[j] + dh10 * v0[j] + dh01 * q1[j] + dh11 * v1[j]
@@ -408,7 +514,11 @@ class RealMoveItBridge(Node):
                     e = q_ref[j] - q_meas[j]
 
                     # deadband near target to avoid micro-oscillation
-                    if abs(e) < self.deadband and abs(v_ref[j]) < self.deadband_vel and abs(dq_meas[j]) < self.deadband_vel:
+                    if (
+                        abs(e) < self.deadband
+                        and abs(v_ref[j]) < self.deadband_vel
+                        and abs(dq_meas[j]) < self.deadband_vel
+                    ):
                         a = 0.0
                     else:
                         a = self.kp * e + self.kd * (v_ref[j] - dq_meas[j])

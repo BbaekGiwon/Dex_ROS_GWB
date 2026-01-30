@@ -26,11 +26,11 @@ def generate_launch_description():
     # 3) MoveIt config: panda → fr3_kistar
     moveit_config = (
         MoveItConfigsBuilder(
-            "fr3_kistar",                      # 로봇 이름
+            "fr3_kistar",  # 로봇 이름
             package_name="franka_kistar_moveit_config",  # 네 MoveIt 설정 패키지 이름
         )
         .robot_description(
-            file_path="config/fr3_kistar_isaac.urdf.xacro",   # <- 이 xacro를 네가 만들어야 함
+            file_path="config/fr3_kistar_isaac.urdf.xacro",  # <- 이 xacro를 네가 만들어야 함
             mappings={
                 # URDF 안에서 ros2_control hardware를 바꾸고 싶다면 이런 식으로 전달
                 "ros2_control_hardware_type": LaunchConfiguration(
@@ -86,9 +86,14 @@ def generate_launch_description():
         name="static_transform_publisher_world_to_robot",
         output="log",
         arguments=[
-            "0.0", "0.0", "0.0",     # x y z
-            "0.0", "0.0", "0.0",     # r p y
-            "world", "base",         # parent, child (네 URDF 기준으로 맞춰)
+            "0.0",
+            "0.0",
+            "0.0",  # x y z
+            "0.0",
+            "0.0",
+            "0.0",  # r p y
+            "world",
+            "base",  # parent, child (네 URDF 기준으로 맞춰)
         ],
         parameters=[{"use_sim_time": LaunchConfiguration("use_sim_time")}],
     )

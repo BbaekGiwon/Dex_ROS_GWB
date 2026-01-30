@@ -19,11 +19,11 @@ class PlanningSceneStaticBoxes(Node):
         self.declare_parameter("ttable_frame", "ttable_link")
         self.declare_parameter("sw_frame", "sw_wall_frame")
         self.declare_parameter("profile_frame", "profile_frame")
-        
+
         self.declare_parameter("table_size", [1.0, 0.8, 0.05])
         self.declare_parameter("ttable_size", [0.6, 0.6, 0.05])
-        self.declare_parameter("sw_wall_size", [0.1, 2., 2.])
-        
+        self.declare_parameter("sw_wall_size", [0.1, 2.0, 2.0])
+
         self.declare_parameter("timeout_sec", 20.0)
 
         self.world_frame = self.get_parameter("world_frame").value
@@ -31,7 +31,7 @@ class PlanningSceneStaticBoxes(Node):
         self.ttable_frame = self.get_parameter("ttable_frame").value
         self.table_size = self.get_parameter("table_size").value
         self.ttable_size = self.get_parameter("ttable_size").value
-        
+
         self.sw_wall_frame = self.get_parameter("sw_frame").value
         self.sw_wall_size = self.get_parameter("sw_wall_size").value
         self.profile_frame = self.get_parameter("profile_frame").value
@@ -45,7 +45,9 @@ class PlanningSceneStaticBoxes(Node):
         self.start_time = self.get_clock().now()
 
     def _lookup_pose(self, target_frame: str) -> Pose:
-        tf = self.tf_buffer.lookup_transform(self.world_frame, target_frame, rclpy.time.Time())
+        tf = self.tf_buffer.lookup_transform(
+            self.world_frame, target_frame, rclpy.time.Time()
+        )
         p = Pose()
         p.position.x = tf.transform.translation.x
         p.position.y = tf.transform.translation.y
@@ -86,23 +88,33 @@ class PlanningSceneStaticBoxes(Node):
 
             scene = PlanningScene()
             scene.is_diff = True
-            scene.world.collision_objects.append(self._make_box("table", table_pose, self.table_size))
-            scene.world.collision_objects.append(self._make_box("ttable", ttable_pose, self.ttable_size))
-            
+            scene.world.collision_objects.append(
+                self._make_box("table", table_pose, self.table_size)
+            )
+            scene.world.collision_objects.append(
+                self._make_box("ttable", ttable_pose, self.ttable_size)
+            )
+
             # Table Camera
-            scene.world.collision_objects.append(self._make_box("camera", profile_pose, [0.22, 0.15, 2.0]))
+            scene.world.collision_objects.append(
+                self._make_box("camera", profile_pose, [0.22, 0.15, 2.0])
+            )
             # scene.world.collision_objects.append(self._make_box("camera", [0.05, 0.032, 0.], [0.22, 0.15, 2.0]))
 
             # SW Wall
-            scene.world.collision_objects.append(self._make_box("sw_wall", sw_wall_pose, self.sw_wall_size))
-            
+            scene.world.collision_objects.append(
+                self._make_box("sw_wall", sw_wall_pose, self.sw_wall_size)
+            )
+
             req = ApplyPlanningScene.Request()
             req.scene = scene
             fut = self.client.call_async(req)
 
             rclpy.spin_until_future_complete(self, fut, timeout_sec=5.0)
             if fut.result() and fut.result().success:
-                self.get_logger().info("Applied planning scene: added table/ttable collision boxes.")
+                self.get_logger().info(
+                    "Applied planning scene: added table/ttable collision boxes."
+                )
             else:
                 self.get_logger().error("Failed to apply planning scene.")
             rclpy.shutdown()
