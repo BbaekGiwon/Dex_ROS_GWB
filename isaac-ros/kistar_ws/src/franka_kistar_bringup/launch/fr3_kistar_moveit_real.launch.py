@@ -1,3 +1,14 @@
+# -----------------------------
+# fr3_kistar_moveit_real.launch.py
+# JointTrajectoryController with Real Robot
+#
+# # Use Case 
+# Run w/ real robot
+# ros2 launch franka_kistar_bringup fr3_kistar_moveit_real.launch.py robot_ip:=172.16.0.1 use_rviz:=true 
+# Run w/o real robot
+# ros2 launch franka_kistar_bringup fr3_kistar_moveit_real.launch.py use_fake_hardware:=true use_rviz:=true 
+# -----------------------------
+
 import os
 import yaml
 from ament_index_python.packages import get_package_share_directory

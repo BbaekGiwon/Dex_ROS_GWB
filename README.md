@@ -6,13 +6,17 @@
 [![Linux platform](https://img.shields.io/badge/platform-linux--64-orange.svg)](https://releases.ubuntu.com/22.04/)
 [![IsaacLab](https://img.shields.io/badge/IsaacLab-v2.2.1-green.svg)](https://github.com/isaac-sim/IsaacLab/)
 
+
 ### Submodule for dex_soldering project! 
+![](./fig/real_moveit.gif)
 
 **Dex ROS** is an ROS2 framework for robotic hand learning using multimodal haptic sensing to accelerate dexterous manipulation with intrinsic properties. Particulary, this work specialized at tool oriented manipulation such as soldering. It builds on [NVIDIA Isaac Sim](https://docs.omniverse.nvidia.com/isaacsim/latest/overview.html) and [NVIDIA IsaacLab](https://github.com/isaac-sim/IsaacLab/) to take advantage of a variety of learning approaches (such as RL, learning from demonstration) and fast and accurate simulation.
 
 * **Contributor:** Chanyoung Ahn
 
 * **Caution:** I always have been developing this repostiory in `cy` branch, It may be experimental setup. <br> Thus, I **strongly** recommand that use `main` branch. 
+
+
 
 
 ## IsaacSim Installation (Local)
@@ -40,11 +44,18 @@ I will irregularly update the development progress in [Link](https://cold-young.
   - [x] Planning (Moveit) - w/ ros topic
   - [ ] Perception 
   - [x] RViz in ROS2 + IsaacSim 5.1
-  - [ ] TF and Vision Calibration (ONGOING)
-  - [ ] Obstacle Decection + Planning (ONGOING)
+  - [x] TF and Vision Calibration
+  - [ ] Setup dual camera ~ w/ define name space.
+    - [ ] Dynamical update TF depend on AprilTag detection
+  - [x] Obstacle Decection + Planning 
+  - [ ] Hand ros2 topic interface
+    - [ ] controller?
+    - [ ] grasp planner w/ MoveIt?
 
 - [x] Connect with Real Environment 
   - [ ] RL policy to MoveIt and Robot
+
+- [ ] Check CUI version launch 
 
 ___
 

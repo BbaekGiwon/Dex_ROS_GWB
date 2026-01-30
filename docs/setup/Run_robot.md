@@ -65,7 +65,7 @@ KISTAR Hand Arrange:
 
 
 ## Run Fake Robot in Rviz with joint controller
-![](../fig/fake_robot.gif)
+![](../../fig/fake_robot.gif)
 ```shell
 rs
 ros2 launch franka_kistar_bringup fr3_kistar.launch.py

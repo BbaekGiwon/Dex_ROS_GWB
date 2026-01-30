@@ -1,5 +1,15 @@
 # Real Robot - MoveIt Example (Robot ↔ MoveIt)
-![](../../fig/real_moveit.gif)
+<table>
+  <tr>
+    <td align="center">
+      <img src="../../fig/sim_moveit.gif" width="400"/>
+    </td>
+    <td align="center">
+      <img src="../../fig/real_moveit.gif" width="400"/>
+    </td>
+  </tr>
+</table>
+
 ```shell
 rs
 

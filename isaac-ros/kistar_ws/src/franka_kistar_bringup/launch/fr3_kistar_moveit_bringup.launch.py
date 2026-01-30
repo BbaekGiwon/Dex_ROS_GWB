@@ -1,3 +1,9 @@
+# -----------------------------
+# fr3_kistar_moveit_bringup.launch.py
+# For Point2Point Motion Generator with Shared Memory Bridge!
+# Cannot generate obstacle avoidance trajectory with this setup..
+# -----------------------------
+    
 import os
 import yaml
 from ament_index_python.packages import get_package_share_directory
@@ -649,8 +655,6 @@ def generate_launch_description():
             # RViz
             rviz_node,
             # Gripper + Bridges
-            gripper_launch_file,
-            isaac_bridge_node,
             real_bridge_node,
         ]
     )
