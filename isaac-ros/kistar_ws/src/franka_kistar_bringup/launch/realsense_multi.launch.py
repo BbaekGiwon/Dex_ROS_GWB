@@ -17,7 +17,6 @@ def rs(serial, ns, name, base_frame, enable_pointcloud="true"):
             "base_frame_id": base_frame,  # 로봇 TF에 붙일 마운트 프레임
             "publish_tf": "true",
             "tf_publish_rate": "0.0",
-            # 아래는 rs_launch가 지원할 때만
             "pointcloud.enable": enable_pointcloud,
             "enable_color": "true",
             "enable_depth": "true",
@@ -28,11 +27,13 @@ def rs(serial, ns, name, base_frame, enable_pointcloud="true"):
             "depth_height": "480",
             "depth_fps": "15",
             "initial_reset": "true",
+            "clip_distance": "1.3",
+            # "publish_tf": "false",
         }.items(),
     )
 
 def generate_launch_description():
     return LaunchDescription([
-        rs("846112071515", "front_cam", "front", "camera_link", "true"),
-        # rs("9876543210", "wrist_cam", "wrist", "wrist_camera_link", "true"),
+        rs("_846112071515", "front_cam", "front", "camera_link", "true"),
+        rs("_033422070379", "side_cam", "side", "camera_link", "true"),
     ])

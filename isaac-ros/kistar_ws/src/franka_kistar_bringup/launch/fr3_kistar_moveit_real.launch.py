@@ -87,6 +87,7 @@ def generate_launch_description():
     ttable_z = LaunchConfiguration("ttable_z")
 
     front_camera_link = LaunchConfiguration("front_camera_link")
+    side_camera_link = LaunchConfiguration("side_camera_link")
     profile_frame = LaunchConfiguration("profile_frame")
 
     # -----------------------------
@@ -380,7 +381,31 @@ def generate_launch_description():
         output="screen",
     )
 
-
+    side_camera_tf = Node(
+        package="tf2_ros",
+        executable="static_transform_publisher",
+        name="side_camera_tf",
+        arguments=[
+            "--x",
+            "0.55",
+            "--y",
+            "0.82",
+            "--z",
+            "0.6",
+            "--roll",
+            "0.",
+            "--pitch",
+            "0.4363",
+            "--yaw",
+            "-1.5708",
+            "--frame-id",
+            world_frame,
+            "--child-frame-id",
+            side_camera_link,
+        ],
+        remappings=[("tf", "/tf"), ("tf_static", "/tf_static")],
+        output="screen",
+    )
     # right_camera_tf = Node(
     #     package="tf2_ros",
     #     executable="static_transform_publisher",
@@ -756,6 +781,7 @@ def generate_launch_description():
         DeclareLaunchArgument("table_size", default_value="[1.2, 1.8, 0.05]"),
         DeclareLaunchArgument("ttable_size", default_value="[0.5, 0.8, 0.03]"),
         DeclareLaunchArgument("front_camera_link", default_value="front_camera_link"),
+        DeclareLaunchArgument("side_camera_link", default_value="side_camera_link"),
         DeclareLaunchArgument("profile_frame", default_value="profile_frame"),
     ]
 
@@ -770,6 +796,7 @@ def generate_launch_description():
             profile_tf,
             
             front_camera_tf,
+            side_camera_tf,
             # ttable_to_marker0_tf,
             # ttable_to_marker1_tf,
             # ttable_to_marker2_tf,

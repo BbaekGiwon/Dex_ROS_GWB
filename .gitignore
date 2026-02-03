@@ -91,3 +91,5 @@ humble_ws/log
 
 **/.history
 **/.vscode
+
+*.rules 
