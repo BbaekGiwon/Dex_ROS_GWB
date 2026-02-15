@@ -1,6 +1,7 @@
 import argparse
 
 from isaacsim import SimulationApp
+
 simulation_app = SimulationApp({"headless": False})
 """
 ./isaaclab.sh \
@@ -25,10 +26,7 @@ ROBOT_PATH = "/World/kistar"
 JOINT_STATE_TOPIC = "isaac_joint_states"
 JOINT_COMMAND_TOPIC = "isaac_joint_commands"
 
-ROBOT_USD_PATH = (
-    "/home/cy/isaac_ws/dex_soldering/source/isaaclab_assets/isaaclab_assets/soldering_asset/soldering_ros_env.usd"
-)
-
+ROBOT_USD_PATH = "/home/cy/isaac_ws/dex_soldering/source/isaaclab_assets/isaaclab_assets/soldering_asset/soldering_ros_env.usd"
 
 
 def create_ros_action_graph(robot_articulation_path: str):
@@ -42,44 +40,76 @@ def create_ros_action_graph(robot_articulation_path: str):
                     ("ReadSimTime", "isaacsim.core.nodes.IsaacReadSimulationTime"),
                     ("Context", "isaacsim.ros2.bridge.ROS2Context"),
                     ("PublishJointState", "isaacsim.ros2.bridge.ROS2PublishJointState"),
-                    ("SubscribeJointState", "isaacsim.ros2.bridge.ROS2SubscribeJointState"),
-                    ("ArticulationController", "isaacsim.core.nodes.IsaacArticulationController"),
+                    (
+                        "SubscribeJointState",
+                        "isaacsim.ros2.bridge.ROS2SubscribeJointState",
+                    ),
+                    (
+                        "ArticulationController",
+                        "isaacsim.core.nodes.IsaacArticulationController",
+                    ),
                     ("PublishClock", "isaacsim.ros2.bridge.ROS2PublishClock"),
                 ],
                 og.Controller.Keys.CONNECT: [
                     ("OnPlaybackTick.outputs:tick", "PublishJointState.inputs:execIn"),
-                    ("OnPlaybackTick.outputs:tick", "SubscribeJointState.inputs:execIn"),
+                    (
+                        "OnPlaybackTick.outputs:tick",
+                        "SubscribeJointState.inputs:execIn",
+                    ),
                     ("OnPlaybackTick.outputs:tick", "PublishClock.inputs:execIn"),
-                    ("OnPlaybackTick.outputs:tick", "ArticulationController.inputs:execIn"),
-
+                    (
+                        "OnPlaybackTick.outputs:tick",
+                        "ArticulationController.inputs:execIn",
+                    ),
                     ("Context.outputs:context", "PublishJointState.inputs:context"),
                     ("Context.outputs:context", "SubscribeJointState.inputs:context"),
                     ("Context.outputs:context", "PublishClock.inputs:context"),
-
-                    ("ReadSimTime.outputs:simulationTime", "PublishJointState.inputs:timeStamp"),
-                    ("ReadSimTime.outputs:simulationTime", "PublishClock.inputs:timeStamp"),
-
-                    ("SubscribeJointState.outputs:jointNames", "ArticulationController.inputs:jointNames"),
-                    ("SubscribeJointState.outputs:positionCommand", "ArticulationController.inputs:positionCommand"),
-                    ("SubscribeJointState.outputs:velocityCommand", "ArticulationController.inputs:velocityCommand"),
-                    ("SubscribeJointState.outputs:effortCommand", "ArticulationController.inputs:effortCommand"),
+                    (
+                        "ReadSimTime.outputs:simulationTime",
+                        "PublishJointState.inputs:timeStamp",
+                    ),
+                    (
+                        "ReadSimTime.outputs:simulationTime",
+                        "PublishClock.inputs:timeStamp",
+                    ),
+                    (
+                        "SubscribeJointState.outputs:jointNames",
+                        "ArticulationController.inputs:jointNames",
+                    ),
+                    (
+                        "SubscribeJointState.outputs:positionCommand",
+                        "ArticulationController.inputs:positionCommand",
+                    ),
+                    (
+                        "SubscribeJointState.outputs:velocityCommand",
+                        "ArticulationController.inputs:velocityCommand",
+                    ),
+                    (
+                        "SubscribeJointState.outputs:effortCommand",
+                        "ArticulationController.inputs:effortCommand",
+                    ),
                 ],
                 og.Controller.Keys.SET_VALUES: [
                     # 여기가 **실제 articulation prim** 이어야 함
-                    ("ArticulationController.inputs:robotPath", robot_articulation_path),
-
+                    (
+                        "ArticulationController.inputs:robotPath",
+                        robot_articulation_path,
+                    ),
                     ("PublishJointState.inputs:topicName", JOINT_STATE_TOPIC),
                     ("SubscribeJointState.inputs:topicName", JOINT_COMMAND_TOPIC),
-
                     # 여기서 Sdf.Path 사용 (샘플 코드 형태와 동일)
-                    ("PublishJointState.inputs:targetPrim", [Sdf.Path(robot_articulation_path)]),
+                    (
+                        "PublishJointState.inputs:targetPrim",
+                        [Sdf.Path(robot_articulation_path)],
+                    ),
                 ],
             },
         )
-        print(f"[INFO] Created ROS2 action graph for robot at {robot_articulation_path}")
+        print(
+            f"[INFO] Created ROS2 action graph for robot at {robot_articulation_path}"
+        )
     except Exception as e:
         print("[ERROR] Failed to create ROS action graph:", e)
-
 
 
 def main():
@@ -118,7 +148,6 @@ def main():
         print(f"[WARN] No prim at {ROBOT_PATH} — check your USD hierarchy.")
     else:
         print(f"[INFO] Found articulation prim at {ROBOT_PATH}")
-
 
     # ROS2 액션 그래프 생성
     create_ros_action_graph(ROBOT_PATH)

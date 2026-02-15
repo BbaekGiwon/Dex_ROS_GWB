@@ -47,12 +47,18 @@ class Extension(omni.ext.IExt):
         self._stage = self._usd_context.get_stage()
 
         get_browser_instance().register_example(
-            name="Franka MoveIt", ui_hook=lambda a=weakref.proxy(self): a.build_ui(), category=MENU_CATEGORY
+            name="Franka MoveIt",
+            ui_hook=lambda a=weakref.proxy(self): a.build_ui(),
+            category=MENU_CATEGORY,
         )
 
     def build_ui(self):
         # check if ros2 bridge is enabled before proceeding
-        extension_enabled = omni.kit.app.get_app().get_extension_manager().is_extension_enabled("isaacsim.ros2.bridge")
+        extension_enabled = (
+            omni.kit.app.get_app()
+            .get_extension_manager()
+            .is_extension_enabled("isaacsim.ros2.bridge")
+        )
         if not extension_enabled:
             msg = "ROS2 Bridge is not enabled. Please enable the extension to use this feature."
             carb.log_error(msg)
@@ -78,22 +84,52 @@ class Extension(omni.ext.IExt):
                         ("OnPlaybackTick", "omni.graph.action.OnPlaybackTick"),
                         ("ReadSimTime", "isaacsim.core.nodes.IsaacReadSimulationTime"),
                         ("Context", "isaacsim.ros2.bridge.ROS2Context"),
-                        ("PublishJointState", "isaacsim.ros2.bridge.ROS2PublishJointState"),
-                        ("SubscribeJointState", "isaacsim.ros2.bridge.ROS2SubscribeJointState"),
-                        ("ArticulationController", "isaacsim.core.nodes.IsaacArticulationController"),
+                        (
+                            "PublishJointState",
+                            "isaacsim.ros2.bridge.ROS2PublishJointState",
+                        ),
+                        (
+                            "SubscribeJointState",
+                            "isaacsim.ros2.bridge.ROS2SubscribeJointState",
+                        ),
+                        (
+                            "ArticulationController",
+                            "isaacsim.core.nodes.IsaacArticulationController",
+                        ),
                         ("PublishClock", "isaacsim.ros2.bridge.ROS2PublishClock"),
                     ],
                     og.Controller.Keys.CONNECT: [
-                        ("OnPlaybackTick.outputs:tick", "PublishJointState.inputs:execIn"),
-                        ("OnPlaybackTick.outputs:tick", "SubscribeJointState.inputs:execIn"),
+                        (
+                            "OnPlaybackTick.outputs:tick",
+                            "PublishJointState.inputs:execIn",
+                        ),
+                        (
+                            "OnPlaybackTick.outputs:tick",
+                            "SubscribeJointState.inputs:execIn",
+                        ),
                         ("OnPlaybackTick.outputs:tick", "PublishClock.inputs:execIn"),
-                        ("OnPlaybackTick.outputs:tick", "ArticulationController.inputs:execIn"),
+                        (
+                            "OnPlaybackTick.outputs:tick",
+                            "ArticulationController.inputs:execIn",
+                        ),
                         ("Context.outputs:context", "PublishJointState.inputs:context"),
-                        ("Context.outputs:context", "SubscribeJointState.inputs:context"),
+                        (
+                            "Context.outputs:context",
+                            "SubscribeJointState.inputs:context",
+                        ),
                         ("Context.outputs:context", "PublishClock.inputs:context"),
-                        ("ReadSimTime.outputs:simulationTime", "PublishJointState.inputs:timeStamp"),
-                        ("ReadSimTime.outputs:simulationTime", "PublishClock.inputs:timeStamp"),
-                        ("SubscribeJointState.outputs:jointNames", "ArticulationController.inputs:jointNames"),
+                        (
+                            "ReadSimTime.outputs:simulationTime",
+                            "PublishJointState.inputs:timeStamp",
+                        ),
+                        (
+                            "ReadSimTime.outputs:simulationTime",
+                            "PublishClock.inputs:timeStamp",
+                        ),
+                        (
+                            "SubscribeJointState.outputs:jointNames",
+                            "ArticulationController.inputs:jointNames",
+                        ),
                         (
                             "SubscribeJointState.outputs:positionCommand",
                             "ArticulationController.inputs:positionCommand",
@@ -102,14 +138,23 @@ class Extension(omni.ext.IExt):
                             "SubscribeJointState.outputs:velocityCommand",
                             "ArticulationController.inputs:velocityCommand",
                         ),
-                        ("SubscribeJointState.outputs:effortCommand", "ArticulationController.inputs:effortCommand"),
+                        (
+                            "SubscribeJointState.outputs:effortCommand",
+                            "ArticulationController.inputs:effortCommand",
+                        ),
                     ],
                     og.Controller.Keys.SET_VALUES: [
                         # Setting the /Franka target prim to Articulation Controller node
                         ("ArticulationController.inputs:robotPath", franka_stage_path),
                         ("PublishJointState.inputs:topicName", "isaac_joint_states"),
-                        ("SubscribeJointState.inputs:topicName", "isaac_joint_commands"),
-                        ("PublishJointState.inputs:targetPrim", [usdrt.Sdf.Path(franka_stage_path)]),
+                        (
+                            "SubscribeJointState.inputs:topicName",
+                            "isaac_joint_commands",
+                        ),
+                        (
+                            "PublishJointState.inputs:targetPrim",
+                            [usdrt.Sdf.Path(franka_stage_path)],
+                        ),
                     ],
                 },
             )
@@ -131,20 +176,28 @@ class Extension(omni.ext.IExt):
             "TransformPrimCommand",
             path=prim.GetPath(),
             old_transform_matrix=None,
-            new_transform_matrix=Gf.Matrix4d().SetRotate(rot_mat).SetTranslateOnly(Gf.Vec3d(0, -0.64, 0)),
+            new_transform_matrix=Gf.Matrix4d()
+            .SetRotate(rot_mat)
+            .SetTranslateOnly(Gf.Vec3d(0, -0.64, 0)),
         )
         pass
 
     async def _create_moveit_sample(self):
         await omni.usd.get_context().new_stage_async()
         await omni.kit.app.get_app().next_update_async()
-        set_camera_view(eye=[1.20, 1.20, 0.80], target=[0, 0, 0.50], camera_prim_path="/OmniverseKit_Persp")
+        set_camera_view(
+            eye=[1.20, 1.20, 0.80],
+            target=[0, 0, 0.50],
+            camera_prim_path="/OmniverseKit_Persp",
+        )
         self._stage = self._usd_context.get_stage()
 
         self.create_franka(FRANKA_STAGE_PATH)
         await omni.kit.app.get_app().next_update_async()
         create_prim(
-            prim_path="/background", usd_path=self._assets_root_path + "/Isaac/Environments/Simple_Room/simple_room.usd"
+            prim_path="/background",
+            usd_path=self._assets_root_path
+            + "/Isaac/Environments/Simple_Room/simple_room.usd",
         )
         await omni.kit.app.get_app().next_update_async()
         PhysicsContext(physics_dt=1.0 / 60.0)
@@ -164,6 +217,8 @@ class Extension(omni.ext.IExt):
 
     def on_shutdown(self):
         """Cleanup objects on extension shutdown"""
-        get_browser_instance().deregister_example(name=MENU_NAME, category=MENU_CATEGORY)
+        get_browser_instance().deregister_example(
+            name=MENU_NAME, category=MENU_CATEGORY
+        )
         self._timeline.stop()
         gc.collect()

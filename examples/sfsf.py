@@ -1,4 +1,3 @@
-
 """
 Example - MoveIt with Isaac Sim and ROS2
 .. code-block:: bash

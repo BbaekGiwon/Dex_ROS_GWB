@@ -13,7 +13,7 @@ class TestSendJoint(Node):
         # Isaac에서 joint_states 받아오기
         self.js_sub = self.create_subscription(
             JointState,
-            "isaac_joint_states",   # Isaac 쪽 PublishJointState topicName
+            "isaac_joint_states",  # Isaac 쪽 PublishJointState topicName
             self.joint_state_callback,
             10,
         )
@@ -39,7 +39,9 @@ class TestSendJoint(Node):
         # 처음 한 번만 joint name / 초기 각도 저장
         if self.joint_names is None:
             if not msg.name or not msg.position:
-                self.get_logger().warn("Received empty JointState. Waiting for valid data...")
+                self.get_logger().warn(
+                    "Received empty JointState. Waiting for valid data..."
+                )
                 return
 
             self.joint_names = list(msg.name)

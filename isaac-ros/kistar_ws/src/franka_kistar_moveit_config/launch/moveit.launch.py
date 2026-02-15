@@ -220,7 +220,7 @@ def generate_launch_description():
         package="franka_kistar_isaac_moveit",
         executable="isaac_moveit_bridge",  # 우리가 만들 python 노드 이름
         namespace=namespace,
-        name="fr3_arm_controller",         # 중요: 노드 이름을 fr3_arm_controller로 해서
+        name="fr3_arm_controller",  # 중요: 노드 이름을 fr3_arm_controller로 해서
         output="screen",
     )
 
@@ -345,7 +345,7 @@ def generate_launch_description():
             # joint_state_publisher,
             # franka_robot_state_broadcaster,
             gripper_launch_file,
-            isaac_bridge_node, 
+            isaac_bridge_node,
         ]
         # + load_controllers
     )
