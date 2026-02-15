@@ -36,4 +36,11 @@ install(
   DESTINATION lib/${PROJECT_NAME}
   RENAME isaac_moveit_bridge
 )
+
+install(
+  PROGRAMS
+    scripts/real_moveit_bridge.py
+  DESTINATION lib/${PROJECT_NAME}
+  RENAME real_moveit_bridge
+)
 ament_package()

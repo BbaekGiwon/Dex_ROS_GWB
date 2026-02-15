@@ -27,21 +27,58 @@ source build_ws/humble/isaac_sim_ros_ws/install/local_setup.bash
 ### Recommand 
 - Just input this commands in your bash 
   ```shell
-    dex() {
-        cd "$HOME/isaac_ws/dex_soldering" || return
-        conda activate dexsdr
-        export PATH=/usr/local/go/bin:$PATH
-        export isaac_sim_package_path=$HOME/isaacsim/isaacsim-5.1.0
-        export ROS_DISTRO=humble
-        export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
-        export LD_LIBRARY_PATH=$LD_LIBRARY_PATH:$isaac_sim_package_path/exts/isaacsim.ros2.bridge/humble/lib
 
-    }
+  dex() {
+      cd "$HOME/isaacsim/isaacsim-5.1.0" || return
+      conda activate dexsdr
+      export isaac_sim_package_path=$HOME/isaacsim/isaacsim-5.1.0
+      # 1) 기존 ROS 흔적 싹 지우기
+      unset ROS_VERSION ROS_PYTHON_VERSION
+      unset ROS_PACKAGE_PATH
+      clean_var() {
+        local name="$1"
+        local val="${!name}"
+        if [ -n "$val" ]; then
+          export "$name"="$(echo "$val" | tr ':' '\n' | grep -v '/opt/ros/humble' | paste -sd: -)"
+        fi
+      }
+      clean_var PYTHONPATH
+      clean_var LD_LIBRARY_PATH
+      clean_var PATH
+      export ROS_DISTRO=humble
+      export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      export ROS_DOMAIN_ID=9
+      export ROS_LOCALHOST_ONLY=0
+      export LD_LIBRARY_PATH="$isaac_sim_package_path/exts/isaacsim.ros2.bridge/humble/lib:$LD_LIBRARY_PATH"
 
-    # If you want to source ROS2 .. python 3.10
-    rs(){
+      export ROS_DISTRO=humble
+      export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+      export LD_LIBRARY_PATH=$PWD/exts/isaacsim.ros2.bridge/humble/lib:$LD_LIBRARY_PATH
+
+  }
+
+  # Ros2 Isaac Sim Python 3.10
+  rs(){
+    conda activate ros
     source /opt/ros/humble/setup.bash
-    }
+    source ~/fr_ws/install/setup.bash
+    source ~/isaac_ws/dex_soldering/dex_ros/isaac-ros/humble_ws/install/setup.bash
+    source ~/isaac_ws/dex_soldering/dex_ros/isaac-ros/kistar_ws/install/setup.bash
+    export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+    export ROS_DOMAIN_ID=9                  
+    export ROS_LOCALHOST_ONLY=0     
+  }
+
+  # Ros2 Isaac Sim Python 3.11
+  rsi(){
+    source /opt/ros/humble/setup.bash
+    export RMW_IMPLEMENTATION=rmw_fastrtps_cpp
+    export ROS_DOMAIN_ID=9                    
+    export ROS_LOCALHOST_ONLY=0     
+    cd "$HOME/isaac_ws/dex_soldering/dex_ros/isaac-ros/humble_ws" || return
+    source install/setup.bash
+
+  }
     
   ```
 
@@ -77,5 +114,19 @@ source install/setup.bash
 ```shell
 ros2 run joint_state_publisher_gui joint_state_publisher_gui /tmp/fr3_kistar.urdf
 
+```
+
+## MoveIt! Example 
+![Demonstration](../fig/moveit.gif)
+```shell
+rs 
+
+# 터미널 1 – Learn dummy robot
+ros2 launch franka_kistar_moveit_config moveit.launch.py   robot_ip:=dummy   use_fake_hardware:=true   launch_rviz:=true
+
+
+# 터미널 2 – MoveIt + RViz (kistar URDF)
+ros2 launch franka_kistar_moveit_config moveit.launch.py
 
 ```
+

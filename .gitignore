@@ -86,3 +86,10 @@ humble_ws/log
 # ROS Build
 **/install/*
 **/log/*
+
+**/*.zip
+
+**/.history
+**/.vscode
+
+*.rules 
