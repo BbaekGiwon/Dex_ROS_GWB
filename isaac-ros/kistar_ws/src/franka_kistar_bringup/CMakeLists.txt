@@ -22,6 +22,9 @@ install(
 install(
   PROGRAMS
     scripts/planning_scene_static_boxes.py
+    scripts/trajectory_forwarder.py
+    scripts/trajectory_subscriber.py
+    scripts/pose_commander.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

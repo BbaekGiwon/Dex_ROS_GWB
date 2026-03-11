@@ -1,26 +1,63 @@
 <?xml version="1.0"?>
-<robot name="fr3_kistar">
+<robot name="fr3">
+  <!-- Virtual joint connecting robot to world -->
+  <virtual_joint name="virtual_joint" type="fixed" parent_frame="world" child_link="fr3_link0"/>
 
-  <!-- 1) world ↔ 로봇 루트 링크 virtual joint -->
-  <virtual_joint
-    name="world_to_base"
-    type="fixed"
-    parent_frame="world"
-    child_link="base" />
-
-  <!-- 2) 메인 플래닝 그룹: 팔 + 손바닥까지 -->
-  <group name="fr3_manipulator">
+  <!-- Planning group: FR3 arm (7-DOF) -->
+  <group name="fr3_arm">
     <chain base_link="fr3_link0" tip_link="fr3_link8"/>
   </group>
 
-  <!-- 3) EE 정의 (옵션이지만 나중에 RViz에서 편함) -->
-  <end_effector
-    name="kistar_ee"
-    parent_link="palm"
-    group="fr3_manipulator"
-    parent_group="fr3_manipulator" />
+  <!-- Group states for fr3_arm -->
+  <group_state name="ready" group="fr3_arm">
+    <joint name="fr3_joint1" value="0"/>
+    <joint name="fr3_joint2" value="-0.785"/>
+    <joint name="fr3_joint3" value="0"/>
+    <joint name="fr3_joint4" value="-2.356"/>
+    <joint name="fr3_joint5" value="0"/>
+    <joint name="fr3_joint6" value="1.571"/>
+    <joint name="fr3_joint7" value="0.785"/>
+  </group_state>
 
-  <!-- 4) 나중에 필요하면 disable_collisions, passive_joint 추가 가능 -->
+  <group_state name="extended" group="fr3_arm">
+    <joint name="fr3_joint1" value="0"/>
+    <joint name="fr3_joint2" value="0"/>
+    <joint name="fr3_joint3" value="0"/>
+    <joint name="fr3_joint4" value="-0.1"/>
+    <joint name="fr3_joint5" value="0"/>
+    <joint name="fr3_joint6" value="1.571"/>
+    <joint name="fr3_joint7" value="0.785"/>
+  </group_state>
+
+  <!-- Disable collisions between adjacent links -->
+  <disable_collisions link1="fr3_link0" link2="fr3_link1" reason="Adjacent"/>
+  <disable_collisions link1="fr3_link0" link2="fr3_link2" reason="Never"/>
+  <disable_collisions link1="fr3_link0" link2="fr3_link3" reason="Never"/>
+  <disable_collisions link1="fr3_link0" link2="fr3_link4" reason="Never"/>
+  <disable_collisions link1="fr3_link1" link2="fr3_link2" reason="Adjacent"/>
+  <disable_collisions link1="fr3_link1" link2="fr3_link3" reason="Never"/>
+  <disable_collisions link1="fr3_link1" link2="fr3_link4" reason="Never"/>
+  <disable_collisions link1="fr3_link2" link2="fr3_link3" reason="Adjacent"/>
+  <disable_collisions link1="fr3_link2" link2="fr3_link4" reason="Never"/>
+  <disable_collisions link1="fr3_link2" link2="fr3_link6" reason="Never"/>
+  <disable_collisions link1="fr3_link3" link2="fr3_link4" reason="Adjacent"/>
+  <disable_collisions link1="fr3_link3" link2="fr3_link5" reason="Never"/>
+  <disable_collisions link1="fr3_link3" link2="fr3_link6" reason="Never"/>
+  <disable_collisions link1="fr3_link3" link2="fr3_link7" reason="Never"/>
+  <disable_collisions link1="fr3_link4" link2="fr3_link5" reason="Adjacent"/>
+  <disable_collisions link1="fr3_link4" link2="fr3_link6" reason="Never"/>
+  <disable_collisions link1="fr3_link4" link2="fr3_link7" reason="Never"/>
+  <disable_collisions link1="fr3_link4" link2="fr3_link8" reason="Never"/>
+  <disable_collisions link1="fr3_link5" link2="fr3_link6" reason="Adjacent"/>
+  <disable_collisions link1="fr3_link5" link2="fr3_link7" reason="Never"/>
+  <disable_collisions link1="fr3_link6" link2="fr3_link7" reason="Adjacent"/>
+  <disable_collisions link1="fr3_link6" link2="fr3_link8" reason="Default"/>
+  <disable_collisions link1="fr3_link7" link2="fr3_link8" reason="Adjacent"/>
+
+  <!-- Disable collisions between arm and kistar_hand -->
+  <disable_collisions link1="fr3_link8" link2="kistar_hand" reason="Adjacent"/>
+  <disable_collisions link1="fr3_link7" link2="kistar_hand" reason="Never"/>
+  <disable_collisions link1="fr3_link6" link2="kistar_hand" reason="Never"/>
 </robot>
 
 
