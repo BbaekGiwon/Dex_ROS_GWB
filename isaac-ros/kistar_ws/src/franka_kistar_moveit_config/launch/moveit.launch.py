@@ -217,7 +217,7 @@ def generate_launch_description():
         package="franka_kistar_isaac_moveit",
         executable="isaac_moveit_bridge",
         namespace=namespace,
-        name="fr3_arm_controller",
+        name="fr3_arm_controller",  # 중요: 노드 이름을 fr3_arm_controller로 해서
         output="screen",
         condition=IfCondition(PythonExpression(["'", bridge, "' == 'isaac'"])),
     )
@@ -332,6 +332,5 @@ def generate_launch_description():
             run_move_group_node,
             gripper_launch_file,
             isaac_bridge_node,
-            real_bridge_node,
         ]
     )
