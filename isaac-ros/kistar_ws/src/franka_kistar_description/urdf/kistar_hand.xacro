@@ -210,12 +210,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/index_basemotor_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. -0. 0." rpy="0.0000013 0. 0. "/>
+    <collision>
+      <origin xyz="0.01407 0.0 0.0" rpy="0.0000013 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/index_basemotor_collisions.obj" scale="1. 1. 1."/>
-      </geometry> -->
-    <!-- </collision> -->
+        <box size="0.02815 0.01920 0.02400"/>
+      </geometry>
+    </collision>
   </link>
   <link name="index_link_0">
     <inertial>
@@ -229,12 +229,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/index_link_0_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00650 0.0 0.00977" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/index_link_0_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.02600 0.02600 0.02845"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="index_link_1">
     <inertial>
@@ -248,12 +248,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/index_link_1_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00162 0.0 0.01675" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/index_link_1_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.01375 0.02610 0.04250"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="index_link_2">
     <inertial>
@@ -267,12 +267,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/index_link_2_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00163 0.0 0.01335" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/index_link_2_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.01375 0.02600 0.03570"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="index_tip">
     <inertial>
@@ -286,12 +286,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/index_tip_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. -0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00200 0.0 0.01223" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/index_tip_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.01800 0.02600 0.03345"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="kistar_hand_index_sensor_0">
     <visual>
@@ -459,12 +459,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/middle_basemotor_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="0.01407 0.0 0.0" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/middle_basemotor_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.02815 0.01920 0.02400"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="middle_link_0">
     <inertial>
@@ -478,12 +478,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/middle_link_0_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00650 0.0 0.00977" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/middle_link_0_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.02600 0.02600 0.02845"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="middle_link_1">
     <inertial>
@@ -497,12 +497,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/middle_link_1_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00162 0.0 0.01675" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/middle_link_1_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.01375 0.02610 0.04250"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="middle_link_2">
     <inertial>
@@ -516,12 +516,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/middle_link_2_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00163 0.0 0.01335" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/middle_link_2_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.01375 0.02600 0.03570"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="middle_tip">
     <inertial>
@@ -535,12 +535,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/middle_tip_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00200 0.0 0.01223" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/middle_tip_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.01800 0.02600 0.03345"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="mount">
     <visual>
@@ -569,14 +569,13 @@
       </geometry>
     </visual>
     <collision>
-      <!-- <origin xyz="0. 0. 0.02" rpy="0. 0. 0."/> -->
-      <origin xyz="0. 0. 0.05" rpy="0. 0. 0."/>
+      <origin xyz="0.01070 0.0 -0.02702" rpy="0. 0. 0."/>
       <geometry>
-        <box size="0.15 0.17 0.2"/>
+        <box size="0.04700 0.08954 0.08512"/>
       </geometry>
     </collision>
 
-  </link>
+  </link> 
   <link name="ring_basemotor">
     <inertial>
       <origin xyz="0.01338 0.00095 -0.00207" rpy="0. 0. 0."/>
@@ -589,12 +588,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/ring_basemotor_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="-0.0000013 0. 0. "/>
+    <collision>
+      <origin xyz="0.01407 0.0 0.0" rpy="-0.0000013 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/ring_basemotor_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.02815 0.01920 0.02400"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="ring_link_0">
     <inertial>
@@ -608,12 +607,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/ring_link_0_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00650 0.0 0.00977" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/ring_link_0_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.02600 0.02600 0.02845"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="ring_link_1">
     <inertial>
@@ -627,12 +626,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/ring_link_1_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. -0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00162 0.0 0.01675" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/ring_link_1_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.01375 0.02610 0.04250"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="ring_link_2">
     <inertial>
@@ -646,12 +645,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/ring_link_2_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. -0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00163 0.0 0.01335" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/ring_link_2_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.01375 0.02600 0.03570"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="ring_tip">
     <inertial>
@@ -665,12 +664,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/ring_tip_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. -0. -0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00200 0.0 0.01223" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/ring_tip_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.01800 0.02600 0.03345"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="thumb_basemotor">
     <inertial>
@@ -684,12 +683,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/thumb_basemotor_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. -0." rpy="0.0000013 0. 0. "/>
+    <collision>
+      <origin xyz="0.01200 0.0 0.0" rpy="0.0000013 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/thumb_basemotor_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.02400 0.01920 0.02400"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="thumb_link_0">
     <inertial>
@@ -703,12 +702,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/thumb_link_0_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="-0.0000013 0. 0. "/>
+    <collision>
+      <origin xyz="-0.00716 0.0 0.01576" rpy="-0.0000013 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/thumb_link_0_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.02628 0.02600 0.04048"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="thumb_link_1">
     <inertial>
@@ -722,12 +721,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/thumb_link_1_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="0.0 0.0 0.00724" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/thumb_link_1_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.01300 0.02600 0.01448"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="thumb_link_2">
     <inertial>
@@ -741,12 +740,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/thumb_link_2_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00162 0.0 0.01675" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/thumb_link_2_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.01375 0.02610 0.04250"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
   <link name="thumb_tip">
     <inertial>
@@ -760,12 +759,12 @@
         <mesh filename="package://franka_kistar_description/meshes/hand/thumb_tip_visuals.obj" scale="1. 1. 1."/>
       </geometry>
     </visual>
-    <!-- <collision>
-      <origin xyz="0. 0. 0." rpy="0. 0. 0."/>
+    <collision>
+      <origin xyz="-0.00200 0.0 0.01223" rpy="0. 0. 0."/>
       <geometry>
-        <mesh filename="package://franka_kistar_description/meshes/hand/thumb_tip_collisions.obj" scale="1. 1. 1."/>
+        <box size="0.01800 0.02600 0.03345"/>
       </geometry>
-    </collision> -->
+    </collision>
   </link>
 </robot>
 

@@ -37,6 +37,9 @@ rs
 ros2 launch franka_kistar_bringup fr3_kistar_moveit_planning_pc.launch.py \
   use_fake_joint_states:=true
 
+ros2 launch franka_kistar_bringup fr3_kistar_moveit_planning_pc.launch.py \
+  use_fake_joint_states:=false
+
 # Terminal 2
 rs
 ros2 run franka_kistar_bringup pose_commander.py \
@@ -45,7 +48,9 @@ ros2 run franka_kistar_bringup pose_commander.py \
   -p planning_group:=fr3_arm \
   -p end_effector_link:=fr3_link8 \
   -p planning_time:=5.0 \
-  -p reference_frame:=world
+  -p reference_frame:=fr3_link0
+
+  # -p reference_frame:=world
 
 
 0.307 0.0 0.487 0 1.0 0 0
@@ -58,7 +63,7 @@ export ROS_LOCALHOST_ONLY=0
 
 # PC2 with real robot + controller
 ros2 launch franka_kistar_bringup robot_execution_pc.launch.py \
-  robot_ip:=[ROBOT_IP]
+  robot_ip:=192.168.1.250
 
 # PC1 
 ```
