@@ -15,7 +15,11 @@ if(BUILD_TESTING)
 endif()
 
 install(
+<<<<<<< HEAD
+  DIRECTORY launch resource test franka_kistar_bringup rviz urdf meshes
+=======
   DIRECTORY launch resource test rviz urdf meshes scripts
+>>>>>>> cy
   DESTINATION share/${PROJECT_NAME}
 )
 
