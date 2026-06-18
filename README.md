@@ -41,36 +41,38 @@ Install `IsaacSim-5.1.0` [[Link]](https://docs.isaacsim.omniverse.nvidia.com/5.1
 
 ## Package Build
 
-### 1. 시스템 의존성 설치
+### 1. 클론
 
 ```shell
-# ROS2 Humble (필수)
-# https://docs.ros.org/en/humble/Installation.html
+git clone --recurse-submodules <repo_url>
+```
 
+이미 클론된 경우:
+
+```shell
+git submodule update --init
+```
+
+> **TRAC-IK** (`src/trac_ik`)는 [traclabs/trac_ik](https://github.com/traclabs/trac_ik) 를 서브모듈로 등록되어 있다.  
+> `--recurse-submodules` 없이 클론하면 빌드 시 패키지를 찾지 못한다.
+
+### 2. 시스템 의존성 설치
+
+```shell
 # RealSense 카메라
 sudo apt install ros-humble-realsense2*
 
-# TRAC-IK 빌드 의존성 (src/trac_ik 소스가 repo에 포함되어 있으나 libnlopt는 별도 설치 필요)
+# TRAC-IK 빌드 의존성 (libnlopt가 없으면 빌드 중 NLopt not found 에러 발생)
 sudo apt install libnlopt-dev libnlopt-cxx-dev
 ```
 
-또는 `rosdep`으로 한 번에:
-
-```shell
-cd isaac-ros/kistar_ws
-rosdep install -i --from-path src --rosdistro humble -y
-```
-
-### 2. 빌드
+### 3. 빌드
 
 ```shell
 cd isaac-ros/kistar_ws
 colcon build --symlink-install
 bash ./install/local_setup.sh
 ```
-
-> **TRAC-IK**: `src/trac_ik/`가 repo에 직접 포함되어 있으므로 `colcon build` 시 함께 빌드된다.  
-> 단, `libnlopt`가 시스템에 없으면 빌드 중 `NLopt not found` 에러가 발생하므로 위 의존성 설치를 먼저 한다.
 
 
 ## TODO! 
