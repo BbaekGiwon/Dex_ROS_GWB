@@ -62,6 +62,7 @@ def generate_launch_description():
     use_rviz = LaunchConfiguration("use_rviz")
     rviz_source = LaunchConfiguration("rviz_source")  # kistar | moveit
     rviz_config = LaunchConfiguration("rviz_config")
+    use_realsense = LaunchConfiguration("use_realsense")
 
     # world/base/table TF args (from fr3_kistar.launch.py)
     world_frame = LaunchConfiguration("world_frame")
@@ -724,7 +725,8 @@ def generate_launch_description():
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([FindPackageShare("franka_kistar_bringup"), 
                                   "launch", "realsense_multi.launch.py"])
-        )
+        ),
+        condition=IfCondition(use_realsense),
     )
 
 
@@ -752,6 +754,7 @@ def generate_launch_description():
         DeclareLaunchArgument("load_gripper", default_value="false"),
         DeclareLaunchArgument("ee_id", default_value="franka_hand"),
         DeclareLaunchArgument("use_rviz", default_value="true"),
+        DeclareLaunchArgument("use_realsense", default_value="false"),
         DeclareLaunchArgument(
             "rviz_source", default_value="kistar", description="kistar or moveit"
         ),

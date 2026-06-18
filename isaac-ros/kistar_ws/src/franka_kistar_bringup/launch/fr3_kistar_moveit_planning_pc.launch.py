@@ -453,6 +453,25 @@ def generate_launch_description():
         condition=IfCondition(use_fake_joint_states),
     )
 
+    franka_joint_position_bridge = Node(
+        package="franka_kistar_bringup",
+        executable="franka_joint_position_bridge.py",
+        name="franka_joint_position_bridge",
+        output="screen",
+        parameters=[
+            {
+                "joint_position_topic": "/franka/joint_position",
+                "joint_velocity_topic": "/franka/joint_velocity",
+                "joint_torque_topic": "/franka/joint_torque",
+                "hand_joint_position_topic": "/hand/joint_position",
+                "joint_states_topic": "/joint_states",
+                "publish_hand_zero_joints": True,
+                "hand_positions_in_degrees": True,
+            }
+        ],
+        condition=UnlessCondition(use_fake_joint_states),
+    )
+
     table_rsp = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -654,6 +673,7 @@ def generate_launch_description():
             ttable_rsp,
             robot_rsp,
             joint_state_publisher,
+            franka_joint_position_bridge,
             # MoveIt
             run_move_group_node,
             # Trajectory Forwarder (핵심 노드)

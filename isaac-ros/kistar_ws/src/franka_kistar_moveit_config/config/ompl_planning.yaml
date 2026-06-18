@@ -1,1 +1,23 @@
-/home/cy/fr_ws/src/franka_fr3_moveit_config/config/ompl_planning.yaml
+planner_configs:
+  RRTConnectkConfigDefault:
+    type: geometric::RRTConnect
+    range: 0.0
+  RRTstarkConfigDefault:
+    type: geometric::RRTstar
+    range: 0.0
+    goal_bias: 0.05
+    delay_collision_checking: 1
+  PRMkConfigDefault:
+    type: geometric::PRM
+    max_nearest_neighbors: 10
+  PRMstarkConfigDefault:
+    type: geometric::PRMstar
+
+fr3_arm:
+  planner_configs:
+    - RRTConnectkConfigDefault
+    - RRTstarkConfigDefault
+    - PRMkConfigDefault
+    - PRMstarkConfigDefault
+  projection_evaluator: joints(fr3_joint1,fr3_joint2)
+  longest_valid_segment_fraction: 0.005

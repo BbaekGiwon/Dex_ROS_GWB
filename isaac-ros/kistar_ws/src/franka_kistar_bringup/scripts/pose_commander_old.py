@@ -15,8 +15,6 @@ Author: Chanyoung Ahn
 Date: 2025
 """
 
-# /franka/target_joint 보내는 걸로 변경 2026.04.09 by GWB
-
 import rclpy
 from rclpy.node import Node
 from rclpy.action import ActionClient
@@ -33,7 +31,6 @@ from moveit_msgs.msg import (
 from control_msgs.action import FollowJointTrajectory
 from geometry_msgs.msg import PoseStamped, Point, Quaternion
 from shape_msgs.msg import SolidPrimitive
-from std_msgs.msg import Float64, Float64MultiArray
 import threading
 import math
 import time
@@ -53,20 +50,12 @@ class PoseCommander(Node):
         self.declare_parameter('end_effector_link', 'fr3_hand_tcp')
         self.declare_parameter('planning_time', 5.0)
         self.declare_parameter('reference_frame', 'world')
-        self.declare_parameter('execute_mode', 'trajectory_forwarder')
-        self.declare_parameter('franka_target_topic', '/franka/target_joint')
-        self.declare_parameter('franka_speed_topic', '/franka/target_speed_factor')
-        self.declare_parameter('franka_speed_factor', 0.1)
 
         self.gui = self.get_parameter('gui').value
         self.planning_group = self.get_parameter('planning_group').value
         self.ee_link = self.get_parameter('end_effector_link').value
         self.planning_time = self.get_parameter('planning_time').value
         self.ref_frame = self.get_parameter('reference_frame').value
-        self.execute_mode = self.get_parameter('execute_mode').value
-        self.franka_target_topic = self.get_parameter('franka_target_topic').value
-        self.franka_speed_topic = self.get_parameter('franka_speed_topic').value
-        self.franka_speed_factor = self.get_parameter('franka_speed_factor').value
 
         # Callback group for threading
         self.cb_group = ReentrantCallbackGroup()
@@ -88,7 +77,6 @@ class PoseCommander(Node):
         self.get_logger().info(f'  End-effector: {self.ee_link}')
         self.get_logger().info(f'  Reference frame: {self.ref_frame}')
         self.get_logger().info(f'  Planning timeout: {self.planning_time}s')
-        self.get_logger().info(f'  Execute mode: {self.execute_mode}')
         self.get_logger().info('=' * 70)
 
     def _setup_clients(self):
@@ -109,38 +97,18 @@ class PoseCommander(Node):
             10
         )
 
-        self.franka_target_pub = self.create_publisher(
-            Float64MultiArray,
-            self.franka_target_topic,
-            10
-        )
-        self.franka_speed_pub = self.create_publisher(
-            Float64,
-            self.franka_speed_topic,
-            10
+        # FollowJointTrajectory action client (trajectory_forwarder)
+        self.traj_client = ActionClient(
+            self,
+            FollowJointTrajectory,
+            '/fr3_arm_controller/follow_joint_trajectory',
+            callback_group=self.cb_group
         )
 
         self.get_logger().info('Waiting for MoveGroup action server...')
         self.move_group_client.wait_for_server()
-        if self.execute_mode == 'trajectory_forwarder':
-            self.traj_client = ActionClient(
-                self,
-                FollowJointTrajectory,
-                '/fr3_arm_controller/follow_joint_trajectory',
-                callback_group=self.cb_group
-            )
-            self.traj_client.wait_for_server()
-            self.get_logger().info('MoveGroup and trajectory action servers connected')
-        elif self.execute_mode == 'direct_franka_topic':
-            self.traj_client = None
-            self.get_logger().info('MoveGroup action server connected')
-            self.get_logger().info(
-                f'Franka direct topics ready: {self.franka_target_topic}, {self.franka_speed_topic}'
-            )
-        else:
-            raise ValueError(
-                "execute_mode must be 'trajectory_forwarder' or 'direct_franka_topic'"
-            )
+        self.traj_client.wait_for_server()
+        self.get_logger().info('Action servers connected')
 
     def _input_loop(self):
         """Input thread - blocking CUI input"""
@@ -312,10 +280,7 @@ class PoseCommander(Node):
             return
 
         # Execute trajectory
-        if self.execute_mode == 'direct_franka_topic':
-            self._execute_direct_franka_topic(trajectory.joint_trajectory)
-        else:
-            self._execute_trajectory(trajectory.joint_trajectory)
+        self._execute_trajectory(trajectory.joint_trajectory)
 
     def _publish_display_trajectory(self, planning_result):
         """Publish trajectory to RViz for visualization"""
@@ -366,35 +331,6 @@ class PoseCommander(Node):
 
         print("[SUCCESS] Trajectory sent to /trajectory_commands")
         print("          (PC2 will execute the trajectory)")
-
-    def _execute_direct_franka_topic(self, joint_trajectory):
-        """Send the final planned joint target to Franka target topics"""
-        if not joint_trajectory.points:
-            print("[ERROR] Planned trajectory has no waypoints")
-            return
-
-        final_point = joint_trajectory.points[-1]
-        target_msg = Float64MultiArray()
-        target_msg.data = list(final_point.positions)
-
-        if len(target_msg.data) != 7:
-            print(f"[ERROR] Expected 7 joint values, got {len(target_msg.data)}")
-            return
-
-        speed_msg = Float64()
-        speed_msg.data = max(0.001, min(1.0, float(self.franka_speed_factor)))
-
-        print("[EXECUTING] Sending final joint target to Franka ROS topics...")
-        print(f"  Target topic: {self.franka_target_topic}")
-        print(f"  Speed topic: {self.franka_speed_topic}")
-        print(f"  Speed factor: {speed_msg.data:.3f}")
-        print(f"  Final joints: {[round(v, 4) for v in target_msg.data]}")
-
-        self.franka_speed_pub.publish(speed_msg)
-        time.sleep(0.05)
-        self.franka_target_pub.publish(target_msg)
-
-        print("[SUCCESS] Final joint target sent to Franka_KISTAR_R_Exp_V1.2_PtoP")
 
     def _print_error_code(self, code):
         """Print MoveIt error code description"""

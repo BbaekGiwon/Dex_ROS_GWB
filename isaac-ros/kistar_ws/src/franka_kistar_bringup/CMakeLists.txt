@@ -15,11 +15,7 @@ if(BUILD_TESTING)
 endif()
 
 install(
-<<<<<<< HEAD
-  DIRECTORY launch resource test franka_kistar_bringup rviz urdf meshes
-=======
-  DIRECTORY launch resource test rviz urdf meshes scripts
->>>>>>> cy
+  DIRECTORY launch resource test franka_kistar_bringup rviz urdf meshes scripts
   DESTINATION share/${PROJECT_NAME}
 )
 
@@ -29,6 +25,10 @@ install(
     scripts/trajectory_forwarder.py
     scripts/trajectory_subscriber.py
     scripts/pose_commander.py
+    scripts/pose_commander_GWB.py
+    scripts/franka_joint_position_bridge.py
+    scripts/start_robot_gwb.sh
+    scripts/grasp_executor.py
   DESTINATION lib/${PROJECT_NAME}
 )
 

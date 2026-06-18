@@ -9,14 +9,12 @@
   <xacro:arg name="use_fake_hardware"   default="false"/>
   <xacro:arg name="fake_sensor_commands" default="false"/>
   <xacro:property name="arm_id" value="fr3"/>
-  <xacro:property name="flange_link" value="${arm_prefix_val + arm_id + '_link8'}"/>
 
   <xacro:franka_robot
       arm_id="fr3"
       joint_limits="${xacro.load_yaml('$(find franka_kistar_description)/robots/fr3/joint_limits.yaml')}"
       inertials="${xacro.load_yaml('$(find franka_kistar_description)/robots/fr3/inertials.yaml')}"
       kinematics="${xacro.load_yaml('$(find franka_kistar_description)/robots/fr3/kinematics.yaml')}"
-      accelerometer_config="${xacro.load_yaml('$(find franka_kistar_description)/robots/fr3/accelerometers.yaml')}"
       dynamics="${xacro.load_yaml('$(find franka_kistar_description)/robots/fr3/dynamics.yaml')}"
       gazebo="false"
       hand="false"                
