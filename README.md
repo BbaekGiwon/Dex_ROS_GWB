@@ -1,5 +1,7 @@
 
 # Dex ROS
+- Original code by **[Chanyoung Ahn](https://github.com/cold-young)** (PRIME LAB) — [dex_ros](https://github.com/KIST-PRIME-Lab/dex_ros)
+- Modified by **[Giwon Baek](https://github.com/BbaekGiwon)** (HARI LAB), 2026.06 — change scripts for docker usage
 
 [![IsaacSim](https://img.shields.io/badge/IsaacSim-5.0.0-silver.svg)](https://docs.isaacsim.omniverse.nvidia.com/latest/index.html)
 [![Python](https://img.shields.io/badge/python-3.11-blue.svg)](https://docs.python.org/3/whatsnew/3.11.html)
@@ -35,19 +37,40 @@ Install `IsaacSim-5.1.0` [[Link]](https://docs.isaacsim.omniverse.nvidia.com/5.1
 ## Docs 
 - Initial Settings (H/W, Network, ROS2 ..etc): [`\docs`](./docs) 
 - MoveIt and Specific Packages for MOTIE Projects: [`\examples`](./examples/)
-- **(Real Robot + Grasp_fruit 연계)** Docker `ros2_humble` 컨테이너로 MoveIt2 실행: [`docs/run/run_real_moveit.md`](./docs/run/run_real_moveit.md#grasp_fruit-연계-실행-docker--ros2_humble-컨테이너)
+- **(Real Robot + [Topdown_Grasp](https://github.com/KIST-HARILAB/Topdown_Grasp) 연계)** Docker `ros2_humble` 컨테이너로 MoveIt2 실행: [`docs/run/run_real_moveit.md`](./docs/run/run_real_moveit.md#grasp_fruit-연계-실행-docker--ros2_humble-컨테이너)
 
 ## Package Build
+
+### 1. 시스템 의존성 설치
+
 ```shell
-cd ~/isaac_ws/dex_soldering/dex_ros/isaac-ros/kistar_ws
+# ROS2 Humble (필수)
+# https://docs.ros.org/en/humble/Installation.html
+
+# RealSense 카메라
+sudo apt install ros-humble-realsense2*
+
+# TRAC-IK 빌드 의존성 (src/trac_ik 소스가 repo에 포함되어 있으나 libnlopt는 별도 설치 필요)
+sudo apt install libnlopt-dev libnlopt-cxx-dev
+```
+
+또는 `rosdep`으로 한 번에:
+
+```shell
+cd isaac-ros/kistar_ws
+rosdep install -i --from-path src --rosdistro humble -y
+```
+
+### 2. 빌드
+
+```shell
+cd isaac-ros/kistar_ws
 colcon build --symlink-install
 bash ./install/local_setup.sh
 ```
-### Installation (Other Packages)
-```shell
-# First, install ROS2 Humble!
-sudo apt install ros-humble-realsense2*
-```
+
+> **TRAC-IK**: `src/trac_ik/`가 repo에 직접 포함되어 있으므로 `colcon build` 시 함께 빌드된다.  
+> 단, `libnlopt`가 시스템에 없으면 빌드 중 `NLopt not found` 에러가 발생하므로 위 의존성 설치를 먼저 한다.
 
 
 ## TODO! 
