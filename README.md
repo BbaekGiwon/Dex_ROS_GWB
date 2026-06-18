@@ -35,6 +35,7 @@ Install `IsaacSim-5.1.0` [[Link]](https://docs.isaacsim.omniverse.nvidia.com/5.1
 ## Docs 
 - Initial Settings (H/W, Network, ROS2 ..etc): [`\docs`](./docs) 
 - MoveIt and Specific Packages for MOTIE Projects: [`\examples`](./examples/)
+- **(Real Robot + Grasp_fruit 연계)** Docker `ros2_humble` 컨테이너로 MoveIt2 실행: [`docs/run/run_real_moveit.md`](./docs/run/run_real_moveit.md#grasp_fruit-연계-실행-docker--ros2_humble-컨테이너)
 
 ## Package Build
 ```shell
