@@ -10,3 +10,4 @@
 [submodule "isaac-ros/kistar_ws/src/trac_ik"]
 	path = isaac-ros/kistar_ws/src/trac_ik
 	url = https://github.com/traclabs/trac_ik.git
+	branch = rolling
