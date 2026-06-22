@@ -37,42 +37,12 @@ Install `IsaacSim-5.1.0` [[Link]](https://docs.isaacsim.omniverse.nvidia.com/5.1
 ## Docs 
 - Initial Settings (H/W, Network, ROS2 ..etc): [`\docs`](./docs) 
 - MoveIt and Specific Packages for MOTIE Projects: [`\examples`](./examples/)
-- **(Real Robot + [Topdown_Grasp](https://github.com/KIST-HARILAB/Topdown_Grasp) 연계)** Docker `ros2_humble` 컨테이너로 MoveIt2 실행: [`docs/run/run_real_moveit.md`](./docs/run/run_real_moveit.md#grasp_fruit-연계-실행-docker--ros2_humble-컨테이너)
+- **(HARI LAB)** kistar_ws build guide (submodules, TRAC-IK, dependencies): [`docs/setup/kistar_ws_build.md`](./docs/setup/kistar_ws_build.md)
+- **(HARI LAB)** Running MoveIt2 via Docker `ros2_humble` for [Topdown_Grasp](https://github.com/KIST-HARILAB/Topdown_Grasp): [`docs/run/run_real_moveit.md`](./docs/run/run_real_moveit.md#running-with-topdown_grasp-docker--ros2_humble-container)
 
 ## Package Build
 
-### 1. 클론
-
-```shell
-git clone --recurse-submodules <repo_url>
-```
-
-이미 클론된 경우:
-
-```shell
-git submodule update --init
-```
-
-> **TRAC-IK** (`src/trac_ik`)는 [traclabs/trac_ik](https://github.com/traclabs/trac_ik) 를 서브모듈로 등록되어 있다.  
-> `--recurse-submodules` 없이 클론하면 빌드 시 패키지를 찾지 못한다.
-
-### 2. 시스템 의존성 설치
-
-```shell
-# RealSense 카메라
-sudo apt install ros-humble-realsense2*
-
-# TRAC-IK 빌드 의존성 (libnlopt가 없으면 빌드 중 NLopt not found 에러 발생)
-sudo apt install libnlopt-dev libnlopt-cxx-dev
-```
-
-### 3. 빌드
-
-```shell
-cd isaac-ros/kistar_ws
-colcon build --symlink-install
-bash ./install/local_setup.sh
-```
+**[[kistar_ws Build Guide]](./docs/setup/kistar_ws_build.md)** — clone (with submodules), install dependencies, colcon build
 
 
 ## TODO! 

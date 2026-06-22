@@ -70,25 +70,58 @@ ros2 launch franka_kistar_bringup robot_execution_pc.launch.py \
 
 ---
 
-## Grasp_fruit 연계 실행 (Docker — `ros2_humble` 컨테이너)
+## Setting up the `ros2_humble` Docker Container
 
-Grasp_fruit 파이프라인(`run_pipeline_interactive.py`)은 Stage 3(로봇 실행)에서  
-`ros2_humble` Docker 컨테이너 안으로 `docker exec`를 날린다.  
-파이프라인을 돌리기 전에 아래 순서로 MoveIt2를 띄워 두어야 한다.
+The recommended base image is **`osrf/ros:humble-desktop`** (OSRF official, includes ROS2 Humble + RViz2).
 
-### 1. X11 포워딩 허용
+### Create the container
+
+```bash
+docker run -it \
+  --name ros2_humble \
+  --network host \
+  -e DISPLAY=$DISPLAY \
+  -v /tmp/.X11-unix:/tmp/.X11-unix \
+  -v /home/kist/HARILAB:/root/HARILAB \
+  -v /home/kist/ros2_ws:/root/ros2_ws \
+  osrf/ros:humble-desktop \
+  bash
+```
+
+> Adjust the `-v` mount paths to match your machine (see `paths.yaml`).  
+> `--network host` is required for ROS2 DDS communication between the host and container.
+
+After creating the container, build kistar_ws inside it:
+
+```bash
+# Inside the container
+cd /root/HARILAB/dex_ros/isaac-ros/kistar_ws
+apt install libnlopt-dev libnlopt-cxx-dev -y
+colcon build --symlink-install
+```
+
+From then on, start the existing container with `docker start ros2_humble` — no need to re-create it.
+
+---
+
+## Running with Topdown_Grasp (Docker — `ros2_humble` container)
+
+The [Topdown_Grasp](https://github.com/KIST-HARILAB/Topdown_Grasp) pipeline (`run_pipeline_interactive.py`) sends robot commands via `docker exec` into the `ros2_humble` container at Stage 3 (robot execution).  
+MoveIt2 must be running inside the container before starting the pipeline.
+
+### 1. Allow X11 forwarding
 
 ```bash
 xhost +local:docker
 ```
 
-### 2. 컨테이너 시작
+### 2. Start the container
 
 ```bash
 docker start ros2_humble
 ```
 
-### 3. MoveIt2 런치 (`fr3_interactive_pose_control.launch_GWB.py`)
+### 3. Launch MoveIt2 (`fr3_interactive_pose_control.launch_GWB.py`)
 
 ```bash
 docker exec -it -e DISPLAY=$DISPLAY ros2_humble bash -c "
@@ -107,39 +140,39 @@ docker exec -it -e DISPLAY=$DISPLAY ros2_humble bash -c "
 "
 ```
 
-**런치 파라미터 설명:**
+**Launch parameters:**
 
-| 파라미터 | 값 | 설명 |
+| Parameter | Value | Description |
 |---|---|---|
-| `gui` | `true` | RViz 활성화 |
-| `use_fake_joint_states` | `false` | 실제 로봇 joint states 사용 |
-| `execute_mode` | `direct_franka_topic` | Franka topic으로 직접 전송 |
-| `reference_frame` | `base` | MoveIt planning 기준 프레임 |
+| `gui` | `true` | Enable RViz |
+| `use_fake_joint_states` | `false` | Use real robot joint states |
+| `execute_mode` | `direct_franka_topic` | Send trajectory directly via Franka topic |
+| `reference_frame` | `base` | MoveIt planning reference frame |
 
-> `unset PYTHONPATH ...` 라인은 호스트의 Conda 환경이 컨테이너 안으로 새어 들어오는 것을 막는다.  
-> 생략하면 컨테이너 내 Python/ROS2 패키지가 오염되어 import 오류가 날 수 있다.
+> The `unset PYTHONPATH ...` lines prevent the host Conda environment from leaking into the container.  
+> Omitting them can corrupt the container's Python/ROS2 packages and cause import errors.
 
-### 4. 준비 완료 확인
+### 4. Verify readiness
 
-아래 액션 서버가 활성화되면 Grasp_fruit Stage 3이 동작 가능하다.
+Once the following action server is active, Topdown_Grasp Stage 3 can communicate with the robot.
 
 ```bash
-# 호스트에서 확인
+# Check from the host
 ROS_DOMAIN_ID=9 ros2 action list
-# /move_action  ← 이게 보여야 함
+# /move_action  ← must be listed
 ```
 
-### 주의사항
+### Notes
 
-- 이전 세션 종료 후 컨테이너를 재시작하지 않으면 MoveGroup 노드가 두 개 뜰 수 있다.  
-  `[WARN] Ignoring unexpected result response` 경고가 보이면:
+- If the container is not restarted after a previous session, two MoveGroup nodes may be running simultaneously.  
+  If you see `[WARN] Ignoring unexpected result response`, restart the container:
 
   ```bash
   docker restart ros2_humble
-  # 이후 다시 docker exec로 런치
+  # then re-run the docker exec launch command above
   ```
 
-- 런치 파일 위치:
+- Launch file location:
   ```
   isaac-ros/kistar_ws/src/franka_kistar_bringup/launch/
       fr3_interactive_pose_control.launch_GWB.py
